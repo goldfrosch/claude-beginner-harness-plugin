@@ -1,0 +1,8 @@
+{
+  "name": "claude-beginner-harness-plugin",
+  "description": "use claude easier for beginner",
+  "version": "1.0.0",
+  "author": {
+    "name": "GoldFrosch"
+  }
+}
