@@ -1,64 +1,64 @@
 ---
 name: input
-description: /input 호출 시 프로젝트 루트의 INPUT.md를 읽고 그 내용에 대해 응답한다. INPUT.md는 버전 관리 시스템에 포함되지 않도록 ignore 파일에 자동 등록한다.
+description: When /input is invoked, reads INPUT.md from the project root and responds to its contents. INPUT.md is automatically added to the VCS ignore file to exclude it from version control.
 version: 1.0.0
 ---
 
-# Input — INPUT.md 읽기 스킬
+# Input — INPUT.md Reading Skill
 
-`/input` 호출 시 프로젝트 루트의 **`INPUT.md`** 파일을 읽고 그 내용에 따라 응답하는 스킬입니다.
-대화창에 직접 입력하기 어려운 긴 내용, 반복 사용할 프롬프트, 민감한 지시 사항 등을 파일로 전달할 때 사용합니다.
-
----
-
-## 이 스킬이 활성화되는 조건
-
-### 수동 호출 전용: `/input`
+A skill that reads the **`INPUT.md`** file from the project root and responds to its contents when `/input` is invoked.
+Use it to pass long content that's difficult to type directly into the chat, reusable prompts, or sensitive instructions via file.
 
 ---
 
-## 실행 절차
+## Activation Conditions
 
-### 1단계: INPUT.md 존재 확인
+### Manual Only: `/input`
 
-프로젝트 루트에 `INPUT.md`가 있는지 확인합니다.
+---
 
-**파일이 없으면**:
+## Execution Procedure
+
+### Step 1: Check INPUT.md Existence
+
+Check if `INPUT.md` exists at the project root.
+
+**If the file doesn't exist**:
 
 ```
-INPUT.md 파일을 찾을 수 없습니다.
-프로젝트 루트에 INPUT.md를 만들고 다시 호출해 주세요.
+INPUT.md file not found.
+Please create INPUT.md at the project root and invoke again.
 ```
 
-안내 후 종료합니다. 파일을 자동 생성하지 않습니다.
+End after guidance. Do not auto-create the file.
 
-### 2단계: .gitignore 처리
+### Step 2: .gitignore Handling
 
-INPUT.md가 존재하고, 프로젝트에 버전 관리 시스템(.git, .svn 등)이 있는 경우 **반드시** ignore 파일에 `INPUT.md`를 등록합니다.
+If INPUT.md exists and the project has a version control system (.git, .svn, etc.), **always** register `INPUT.md` in the ignore file.
 
-| 버전 관리 | ignore 파일 |
-|-----------|-------------|
+| VCS | Ignore file |
+|-----|-------------|
 | Git | `.gitignore` |
 | SVN | `.svnignore` |
 | Mercurial | `.hgignore` |
 
-이미 등록되어 있으면 중복 추가하지 않습니다.
-ignore 파일이 없으면 새로 생성합니다.
+Do not add duplicate entries if already registered.
+Create the ignore file if it doesn't exist.
 
-### 3단계: INPUT.md 읽기 및 응답
+### Step 3: Read INPUT.md and Respond
 
-INPUT.md의 내용을 그대로 사용자의 입력으로 간주하고 응답합니다.
+Treat the contents of INPUT.md as if they were direct user input and respond accordingly.
 
-- INPUT.md 내용이 작업 요청이면 → 작업을 수행합니다.
-- INPUT.md 내용이 질문이면 → 질문에 답합니다.
-- INPUT.md 내용이 지시 사항이면 → 지시에 따릅니다.
+- If INPUT.md contains a task request → Perform the task.
+- If INPUT.md contains a question → Answer the question.
+- If INPUT.md contains instructions → Follow the instructions.
 
-INPUT.md 내용의 성격에 따라 다른 스킬(scope, clarify, preplan 등)이 연계 활성화될 수 있습니다.
+Depending on the nature of INPUT.md's content, other skills (scope, clarify, preplan, etc.) may be triggered as well.
 
 ---
 
-## 중요 원칙
+## Key Principles
 
-- **파일을 자동 생성하지 않는다**: INPUT.md가 없으면 안내만 하고 종료한다.
-- **내용을 그대로 입력으로 본다**: INPUT.md를 요약하거나 해석하지 않고, 작성된 내용 그대로를 사용자 입력으로 처리한다.
-- **INPUT.md는 배포하지 않는다**: 버전 관리 시스템이 있으면 반드시 ignore 파일에 등록한다.
+- **Never auto-create the file**: If INPUT.md doesn't exist, just guide and exit.
+- **Treat contents as direct input**: Don't summarize or interpret INPUT.md. Process the written content exactly as user input.
+- **Never deploy INPUT.md**: Always register it in the ignore file if a VCS exists.

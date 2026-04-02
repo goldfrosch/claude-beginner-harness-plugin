@@ -1,223 +1,223 @@
 ---
 name: handoff
-description: 대화 컨텍스트가 50% 이상 채워졌을 때 사용한다. 진행 중인 작업의 상태를 HANDOFF.md에 저장하고 /clear로 컨텍스트를 초기화한 뒤 이어서 진행하도록 안내한다. HANDOFF.md가 이미 존재하고 생성 후 1시간 이상 지났거나 완전히 다른 작업을 새로 시작하는 경우에는 HANDOFF.md를 초기화하고 새로 시작하도록 권유한다.
+description: Used when conversation context exceeds 50%. Saves current work state to HANDOFF.md and guides the user to reset context with /clear and resume. If HANDOFF.md already exists and is older than 1 hour or an unrelated task is starting, recommends clearing it and starting fresh.
 version: 1.0.0
 ---
 
-# Handoff — 컨텍스트 관리 스킬
+# Handoff — Context Management Skill
 
-긴 작업 도중 컨텍스트가 가득 차서 성능이 저하되는 것을 방지하기 위한 스킬입니다.
-작업 흐름을 끊지 않고, 컨텍스트를 초기화한 뒤에도 이전 작업을 이어갈 수 있도록 인계 문서를 만들어 저장합니다.
-
----
-
-## 이 스킬이 활성화되는 조건
-
-### 자동 감지: 컨텍스트 50% 이상 사용 중
-
-Claude는 대화 길이, 누적 메시지 수, 파일 읽기 누적량 등을 기준으로 컨텍스트 사용량을 추정합니다.
-아래 신호 중 하나라도 감지되면 이 스킬을 발동합니다:
-
-- 메시지 교환이 20회 이상 누적되었고 작업이 아직 진행 중인 경우
-- 대량의 파일이 반복적으로 읽혀 컨텍스트 누적이 심한 경우
-- Claude 스스로 앞서 한 말을 기억하기 어렵다고 판단하는 경우
-- 시스템이 컨텍스트 압축(context compression)을 시작했다고 감지한 경우
-
-### 수동 호출: `/handoff`
-
-사용자가 명시적으로 인계 문서를 작성하고 싶을 때 호출합니다.
+A skill to prevent performance degradation when context fills up during long work sessions.
+It creates a handoff document so that work can continue seamlessly after a context reset.
 
 ---
 
-## 두 가지 시나리오
+## Activation Conditions
 
-### 시나리오 A: 같은 작업 계속 진행 중 (컨텍스트 초기화 후 이어서)
+### Auto-detect: Context usage at 50% or more
 
-**조건**: 현재 작업과 연속성이 있고, HANDOFF.md가 없거나 최근(1시간 이내)에 만들어진 경우
+Claude estimates context usage based on conversation length, accumulated message count, and cumulative file reads.
+This skill triggers when any of the following signals are detected:
 
-**처리 방법**:
-1. 현재 대화에서 HANDOFF.md를 작성합니다.
-2. 사용자에게 아래 안내를 제공합니다:
-   - HANDOFF.md 작성 완료를 알립니다.
-   - `/clear` 명령으로 컨텍스트를 초기화하도록 안내합니다.
-   - 초기화 후 "HANDOFF.md를 읽고 이어서 진행해줘"라고 요청하도록 안내합니다.
+- 20+ message exchanges accumulated and work is still in progress
+- Heavy context accumulation from repeated large file reads
+- Claude judges it is becoming difficult to recall earlier statements
+- The system has started context compression
 
-### 시나리오 B: 새로운 작업 시작 또는 오래된 HANDOFF.md 감지
+### Manual Invocation: `/handoff`
 
-**조건**: 다음 중 하나에 해당하는 경우
-- HANDOFF.md의 `timestamp` 기준으로 1시간 이상 경과
-- 현재 요청이 HANDOFF.md에 기록된 작업과 무관한 새로운 작업
-
-**처리 방법**:
-1. 사용자에게 HANDOFF.md가 오래되었거나 관련 없는 내용임을 알립니다.
-2. HANDOFF.md를 삭제하거나 초기화할 것을 권유합니다.
-3. `/clear`로 컨텍스트를 초기화하고 새로 시작하도록 안내합니다.
+Called when the user explicitly wants to write a handoff document.
 
 ---
 
-## HANDOFF.md 작성 방법
+## Two Scenarios
 
-아래 형식을 사용합니다. **프로젝트 루트**에 `HANDOFF.md`로 저장합니다.
+### Scenario A: Continuing the same task (resume after context reset)
+
+**Condition**: There is continuity with the current task, and HANDOFF.md either doesn't exist or was created recently (within 1 hour)
+
+**Process**:
+1. Write HANDOFF.md in the current conversation.
+2. Provide the following guidance to the user:
+   - Notify that HANDOFF.md is complete.
+   - Guide them to reset context with the `/clear` command.
+   - Guide them to request "Read HANDOFF.md and continue from where we left off" after reset.
+
+### Scenario B: New task starting or stale HANDOFF.md detected
+
+**Condition**: Any of the following:
+- More than 1 hour has passed since HANDOFF.md's `timestamp`
+- The current request is a new task unrelated to what's recorded in HANDOFF.md
+
+**Process**:
+1. Inform the user that HANDOFF.md is stale or irrelevant.
+2. Recommend deleting or clearing HANDOFF.md.
+3. Guide them to reset context with `/clear` and start fresh.
+
+---
+
+## How to Write HANDOFF.md
+
+Use the format below. Save as `HANDOFF.md` at the **project root**.
 
 ```markdown
-# 작업 인계 문서 (HANDOFF)
+# Work Handoff Document (HANDOFF)
 
-> ⏱ 작성 시각: YYYY-MM-DD HH:MM (KST)
-> 이 문서는 컨텍스트 초기화 후 작업을 이어가기 위해 작성되었습니다.
-
----
-
-## 진행중인 목표
-
-[지금 진행 중인 전체 작업의 목적과 최종 결과물]
+> ⏱ Written at: YYYY-MM-DD HH:MM (local time)
+> This document was created to continue work after a context reset.
 
 ---
 
-## 완료된 작업
+## Current Goal
 
-- [완료된 항목 1]
-- [완료된 항목 2]
+[Purpose and final deliverable of the work in progress]
+
+---
+
+## Completed Tasks
+
+- [Completed item 1]
+- [Completed item 2]
 - ...
 
 ---
 
-## 실패한 작업
+## Failed Tasks
 
-- [실패한 항목 1]: [실패 이유 또는 시도한 방법]
-- [실패한 항목 2]: [실패 이유 또는 시도한 방법]
+- [Failed item 1]: [Reason for failure or approach attempted]
+- [Failed item 2]: [Reason for failure or approach attempted]
 - ...
 
 ---
 
-## 현재 문제점
+## Current Issues
 
-- [현재 막혀있거나 해결되지 않은 문제 1]
-- [현재 막혀있거나 해결되지 않은 문제 2]
+- [Unresolved or blocked issue 1]
+- [Unresolved or blocked issue 2]
 - ...
 
 ---
 
-## 다음에 해야할 일
+## Next Steps
 
-1. [바로 다음에 해야 할 작업]
-2. [그 다음 작업]
+1. [Immediate next task]
+2. [Following task]
 3. ...
 
 ---
 
-## 재개 방법
+## How to Resume
 
-이 문서를 Claude에게 읽힌 뒤 아래와 같이 말하세요:
+After having Claude read this document, say:
 
-> "HANDOFF.md를 읽었어. [다음에 해야할 일 첫 번째 항목]부터 이어서 진행해줘."
+> "I've read HANDOFF.md. Continue from [first item in Next Steps]."
 ```
 
 ---
 
-## 사용자 안내 메시지 형식
+## User Guidance Message Format
 
-### 시나리오 A — 인계 문서 작성 후 안내
-
-```
-컨텍스트가 많이 채워졌습니다. 작업을 이어가기 위해 HANDOFF.md를 작성했습니다.
-
-다음 순서로 진행해 주세요:
-
-1. `/clear` 를 입력해서 컨텍스트를 초기화합니다.
-2. 초기화 후, 아래 문장을 입력합니다:
-   "HANDOFF.md를 읽고 [다음 작업]부터 이어서 진행해줘."
-
-HANDOFF.md가 프로젝트 루트에 저장되어 있습니다.
-```
-
-### 시나리오 B — 오래된 HANDOFF.md 또는 새 작업 감지
+### Scenario A — After writing the handoff document
 
 ```
-HANDOFF.md가 존재하지만, [1시간 이상 지났거나 / 현재 요청과 관련이 없어서] 새로 시작하는 것을 권유합니다.
+Context is getting full. I've written HANDOFF.md to continue the work.
 
-다음 순서로 진행해 주세요:
+Please follow these steps:
 
-1. HANDOFF.md를 삭제하거나 내용을 비웁니다.
-2. `/clear` 를 입력해서 컨텍스트를 초기화합니다.
-3. 새 작업을 처음부터 시작합니다.
+1. Type `/clear` to reset the context.
+2. After reset, type:
+   "Read HANDOFF.md and continue from [next task]."
 
-기존 HANDOFF.md의 내용이 필요하다면 지금 확인해 두세요.
+HANDOFF.md has been saved at the project root.
+```
+
+### Scenario B — Stale HANDOFF.md or new task detected
+
+```
+HANDOFF.md exists, but [it's been over 1 hour / it's unrelated to the current request], so I recommend starting fresh.
+
+Please follow these steps:
+
+1. Delete or clear HANDOFF.md.
+2. Type `/clear` to reset the context.
+3. Start the new task from scratch.
+
+Review the existing HANDOFF.md now if you need its contents.
 ```
 
 ---
 
-## .gitignore 처리
+## .gitignore Handling
 
-HANDOFF.md는 작업 중 임시로 생성되는 문서로, 버전 관리 시스템에 포함되어서는 안 됩니다.
+HANDOFF.md is a temporary document created during work and should not be included in version control.
 
-HANDOFF.md를 처음 생성할 때, 프로젝트에 버전 관리 시스템(.git, .svn 등)이 있는지 확인합니다.
-버전 관리 시스템이 감지되면 **반드시** 해당 ignore 파일에 `HANDOFF.md`를 추가합니다.
+When creating HANDOFF.md for the first time, check if the project has a version control system (.git, .svn, etc.).
+If a VCS is detected, **always** add `HANDOFF.md` to the appropriate ignore file.
 
-| 버전 관리 | ignore 파일 |
-|-----------|-------------|
+| VCS | Ignore file |
+|-----|-------------|
 | Git | `.gitignore` |
 | SVN | `.svnignore` |
 | Mercurial | `.hgignore` |
 
-이미 ignore 파일에 등록되어 있으면 중복 추가하지 않습니다.
-ignore 파일이 없으면 새로 생성합니다.
+Do not add duplicate entries if already registered.
+Create the ignore file if it doesn't exist.
 
 ---
 
-## 기획/설명 문서 별도 관리
+## Separate Planning/Design Documents
 
-작업 과정에서 기획 내용, 설계 결정, 배경 설명 등을 장기적으로 참조해야 하는 상황이 생길 수 있습니다.
-이런 내용은 HANDOFF.md(임시)가 아닌 **별도의 참조 문서**로 분리해 관리합니다.
+During work, situations may arise where planning content, design decisions, and background explanations need long-term reference.
+Such content should be managed as **separate reference documents**, not in HANDOFF.md (which is temporary).
 
-### 언제 별도 문서를 만드는가
+### When to Create a Separate Document
 
-다음 중 하나에 해당하면 별도 문서 작성을 권유합니다:
+Recommend creating a separate document when any of the following apply:
 
-- 기획 결정이나 설계 이유를 나중에도 참조할 필요가 있는 경우
-- 특정 메소드나 모듈이 어떤 기획 의도로 만들어졌는지 연결해두고 싶은 경우
-- 여러 세션에 걸쳐 일관된 맥락을 유지해야 하는 경우
+- Planning decisions or design rationale need to be referenced later
+- You want to link a specific method or module to its planning intent
+- Consistent context needs to be maintained across multiple sessions
 
-### 별도 문서에 담을 것
+### What to Include
 
-- 기획 의도, 설계 결정 배경, 비즈니스 규칙
-- 해당 내용이 반영된 **메소드 이름** (어디에 구현되어 있는지 찾는 실마리)
+- Planning intent, design decision rationale, business rules
+- **Method names** where the content is implemented (clues for finding the implementation)
 
-### 별도 문서에 담지 않을 것
+### What NOT to Include
 
-- 메소드의 구체적인 동작 방식, 파라미터, 구현 로직 → 코드와 주석을 직접 읽어 파악
-- 변수명, 리턴값, 내부 흐름 → 코드가 가장 정확한 출처
+- Specific method behavior, parameters, implementation logic → Read code and comments directly
+- Variable names, return values, internal flow → Code is the most accurate source
 
-### 형식 예시
+### Format Example
 
 ```markdown
-# [기능명] 기획 메모
+# [Feature Name] Planning Memo
 
-## 배경
-[왜 이 기능이 필요한지, 어떤 문제를 해결하는지]
+## Background
+[Why this feature is needed, what problem it solves]
 
-## 주요 결정
-- [결정 내용]: [이유]
+## Key Decisions
+- [Decision]: [Reason]
 
-## 관련 메소드
-- `메소드명()` — [어떤 기획 의도를 담고 있는지 한 줄]
-- `메소드명()` — [동일]
+## Related Methods
+- `methodName()` — [One-line description of the planning intent it embodies]
+- `methodName()` — [Same]
 ```
 
-구체적인 동작 방식은 해당 메소드의 코드와 주석을 직접 읽으세요.
+For specific behavior details, read the method's code and comments directly.
 
-### 파일 위치
+### File Location
 
-`.claude/docs/` 폴더에 저장합니다. 파일명은 기능이나 도메인 이름으로 짓습니다.
-예: `.claude/docs/payment-flow.md`, `.claude/docs/auth-design.md`
+Save in the `.claude/docs/` folder. Name files after the feature or domain.
+Example: `.claude/docs/payment-flow.md`, `.claude/docs/auth-design.md`
 
 ---
 
-## 중요 원칙
+## Key Principles
 
-- **먼저 저장, 그 다음 초기화**: 반드시 HANDOFF.md를 완성한 뒤에 /clear를 안내한다.
-- **이어갈 수 있게 쓴다**: 인계 문서는 미래의 Claude가 컨텍스트 없이 읽어도 즉시 이해할 수 있어야 한다.
-- **타임스탬프 필수**: HANDOFF.md에는 반드시 작성 시각을 기록한다. 시나리오 B 판단의 근거가 된다.
-- **HANDOFF.md는 프로젝트 루트에**: 위치가 일관되어야 Claude가 다음 세션에서 즉시 찾을 수 있다.
-- **새 작업엔 새 출발**: 오래된 인계 문서를 억지로 이어받지 않는다. 깨끗하게 시작하는 것이 더 효율적이다.
-- **HANDOFF.md는 배포하지 않는다**: 버전 관리 시스템이 있으면 반드시 ignore 파일에 등록한다.
-- **코드는 코드로 읽는다**: 기획 문서에 구현 세부 사항을 옮기지 않는다. 코드와 주석이 가장 정확한 출처다.
+- **Save first, then reset**: Only guide /clear after HANDOFF.md is fully written.
+- **Write for continuity**: The handoff document must be immediately understandable by a future Claude with no context.
+- **Timestamp is required**: HANDOFF.md must always include the written time. This is the basis for Scenario B decisions.
+- **HANDOFF.md goes at the project root**: The location must be consistent so Claude can find it immediately in the next session.
+- **Fresh start for new tasks**: Don't force-continue from a stale handoff document. Starting clean is more efficient.
+- **Never deploy HANDOFF.md**: Always register it in the ignore file if a VCS exists.
+- **Read code from code**: Don't copy implementation details into planning documents. Code and comments are the most accurate source.

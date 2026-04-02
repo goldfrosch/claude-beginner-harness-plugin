@@ -1,142 +1,142 @@
 ---
 name: init
-description: 프로젝트 루트에 CLAUDE.md가 없을 때 사용한다. 어떤 작업을 요청받더라도 CLAUDE.md가 없으면 즉시 작업을 멈추고 CLAUDE.md 생성을 최우선으로 처리한다. CLAUDE.md에는 프로젝트 개요를 간략히 담고, 세부 규칙은 .claude 폴더 내 문서들을 참조하도록 작성한다.
+description: Used when CLAUDE.md does not exist at the project root. Regardless of the requested task, if CLAUDE.md is missing, stop immediately and prioritize creating it. CLAUDE.md contains a brief project overview and references detailed rules in the .claude folder.
 version: 1.0.0
 ---
 
-# Init — CLAUDE.md 초기화 스킬
+# Init — CLAUDE.md Initialization Skill
 
-모든 작업을 시작하기 전에 **CLAUDE.md가 프로젝트에 존재하는지 확인**하는 스킬입니다.
-CLAUDE.md가 없으면 Claude는 프로젝트의 목적, 규칙, 구조를 모르는 상태에서 추측으로 작업하게 됩니다.
-어떤 작업이든 시작 전에 이 문서를 먼저 만드는 것이 가장 중요한 첫 단계입니다.
-
----
-
-## 이 스킬이 활성화되는 조건
-
-### 자동 활성화: CLAUDE.md가 없는 경우
-
-프로젝트 루트에 `CLAUDE.md`가 존재하지 않으면 **요청받은 작업의 종류와 무관하게 즉시 이 스킬을 발동**합니다.
-
-- 코드 작성 요청을 받았더라도 CLAUDE.md 생성을 먼저 진행합니다.
-- 단순한 질문이나 설명 요청에는 활성화하지 않습니다.
-- "일단 빠르게 시작하자"는 요청에도 CLAUDE.md 생성을 먼저 처리합니다.
-
-### 수동 호출: `/init`
-
-사용자가 명시적으로 CLAUDE.md를 새로 만들거나 초기화하고 싶을 때 호출합니다.
+A skill that **checks whether CLAUDE.md exists in the project** before starting any work.
+Without CLAUDE.md, Claude works from guesses without knowing the project's purpose, rules, or structure.
+Creating this document first is the most important initial step before any task.
 
 ---
 
-## CLAUDE.md의 역할과 원칙
+## Activation Conditions
 
-CLAUDE.md는 **Claude가 이 프로젝트에 대해 알아야 할 최소한의 정보**를 담는 문서입니다.
+### Automatic: When CLAUDE.md is missing
 
-### 담아야 할 것
-- 프로젝트가 무엇인지 (한두 문장으로)
-- 주요 기술 스택
-- 이 프로젝트에서 Claude가 따라야 할 핵심 원칙 (있다면)
-- 상세 규칙/가이드가 있는 `.claude` 폴더 문서들에 대한 참조
+If `CLAUDE.md` does not exist at the project root, **this skill triggers immediately regardless of the type of task requested**.
 
-### 담지 않아야 할 것
-- 기획 상세, 기능 명세, API 문서 → `.claude` 폴더 또는 별도 문서로
-- 개발 컨벤션, 코딩 스타일 규칙 → `.claude/rules/` 또는 `.claude/skills/` 로
-- 반복되거나 변경될 가능성이 높은 세부 내용
+- Even if a code writing request is received, CLAUDE.md creation takes priority.
+- Does not activate for simple questions or explanation requests.
+- Even for "let's just start quickly" requests, CLAUDE.md creation is handled first.
 
-**CLAUDE.md는 짧고 안정적이어야 합니다.** 자주 바뀌는 내용은 `.claude` 폴더 하위 문서에 두고, CLAUDE.md에서 참조만 합니다.
+### Manual Invocation: `/init`
+
+Called when the user explicitly wants to create or reinitialize CLAUDE.md.
 
 ---
 
-## CLAUDE.md 생성 절차
+## Role and Principles of CLAUDE.md
 
-### 1단계: 프로젝트 파악
+CLAUDE.md is a document containing the **minimum information Claude needs to know about this project**.
 
-기존 파일과 폴더 구조를 빠르게 읽어 프로젝트를 파악합니다.
+### What to Include
+- What the project is (one or two sentences)
+- Key tech stack
+- Core principles Claude must follow in this project (if any)
+- References to detailed rules/guides in the `.claude` folder
 
-확인할 항목:
-- `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod` 등 의존성 파일 → 기술 스택 파악
-- `README.md` 존재 여부 → 프로젝트 개요 참고
-- `.claude/` 폴더 존재 여부 → 있으면 하위 문서 목록 파악
+### What NOT to Include
+- Detailed planning, feature specs, API docs → `.claude` folder or separate documents
+- Development conventions, coding style rules → `.claude/rules/` or `.claude/skills/`
+- Detailed content that is likely to change frequently
 
-### 2단계: 사용자에게 핵심 질문
+**CLAUDE.md should be short and stable.** Put frequently changing content in `.claude` subdocuments and only reference them from CLAUDE.md.
 
-파악한 내용을 바탕으로 **모르는 부분만** 간략히 확인합니다.
+---
+
+## CLAUDE.md Creation Procedure
+
+### Step 1: Understand the Project
+
+Quickly read existing files and folder structure to understand the project.
+
+Items to check:
+- `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, etc. → Identify tech stack
+- `README.md` existence → Reference for project overview
+- `.claude/` folder existence → If present, identify subdocument list
+
+### Step 2: Ask Key Questions
+
+Based on findings, **briefly confirm only unknown parts**.
 
 ```
-CLAUDE.md를 작성하기 전에 몇 가지 확인할게요.
+Before writing CLAUDE.md, I have a few things to confirm.
 
-1. 이 프로젝트가 무엇인지 한두 줄로 설명해주실 수 있나요?
-2. Claude가 작업할 때 반드시 알아야 할 규칙이나 제약이 있나요?
-   (없으면 없다고 말씀해주세요)
-3. .claude 폴더에 별도로 정리된 문서가 있나요?
-   (있다면 어떤 내용인지 간략히 알려주세요)
+1. Can you describe this project in one or two lines?
+2. Are there any rules or constraints Claude must know when working?
+   (If none, just say so)
+3. Are there any documents organized in the .claude folder?
+   (If so, briefly describe their contents)
 ```
 
-이미 파악된 내용(기술 스택, README 등)은 다시 묻지 않습니다.
+Don't re-ask about things already identified (tech stack, README, etc.).
 
-### 3단계: CLAUDE.md 초안 작성 후 확인
+### Step 3: Draft CLAUDE.md and Get Confirmation
 
-아래 형식으로 초안을 작성하고 사용자에게 확인을 받습니다.
+Draft in the format below and get user confirmation.
 
 ---
 
-## CLAUDE.md 형식
+## CLAUDE.md Format
 
 ```markdown
-# 프로젝트명
+# Project Name
 
-## 개요
-[이 프로젝트가 무엇인지 1~3문장으로]
+## Overview
+[What this project is in 1-3 sentences]
 
-## 기술 스택
-- [주요 언어/프레임워크]
-- [데이터베이스, 인프라 등 필요한 경우만]
+## Tech Stack
+- [Primary language/framework]
+- [Database, infrastructure, etc. only if relevant]
 
-## 핵심 원칙
-[프로젝트 전반에 걸쳐 Claude가 반드시 따라야 할 원칙. 없으면 이 섹션 생략]
+## Core Principles
+[Principles Claude must follow across the project. Omit this section if none]
 
-## 참고 문서
-세부 규칙과 가이드는 아래 문서를 참고합니다:
-- [문서 제목]: `.claude/경로/파일.md`
+## Reference Documents
+Refer to the documents below for detailed rules and guides:
+- [Document title]: `.claude/path/file.md`
 ```
 
-**형식 사용 지침**:
-- `## 핵심 원칙`은 진짜 중요한 것만. 없으면 아예 빼는 것이 낫습니다.
-- `## 참고 문서`는 `.claude` 폴더에 실제 존재하는 파일만 나열합니다.
-- `.claude` 폴더가 없거나 비어있으면 `## 참고 문서` 섹션을 생략합니다.
+**Format Guidelines**:
+- `## Core Principles` should contain only truly important items. Better to omit entirely if there are none.
+- `## Reference Documents` should list only files that actually exist in the `.claude` folder.
+- If the `.claude` folder doesn't exist or is empty, omit the `## Reference Documents` section.
 
 ---
 
-## 사용자 안내 메시지 형식
+## User Guidance Message Format
 
-### CLAUDE.md가 없을 때 — 작업 요청을 받은 경우
-
-```
-작업을 시작하기 전에 CLAUDE.md가 없다는 걸 발견했습니다.
-
-CLAUDE.md가 없으면 Claude가 이 프로젝트의 맥락을 모르는 상태에서 추측으로 작업하게 됩니다.
-먼저 CLAUDE.md를 만들고 진행하는 것을 권장합니다.
-
-[1~2가지 확인 질문]
-
-CLAUDE.md를 만든 후 요청하신 작업을 바로 이어서 진행하겠습니다.
-```
-
-### CLAUDE.md 작성 완료 후
+### When CLAUDE.md Is Missing — Upon Receiving a Task Request
 
 ```
-CLAUDE.md를 작성했습니다.
+Before starting work, I noticed CLAUDE.md is missing.
 
-[파일 경로] 에서 확인하고 수정이 필요하면 알려주세요.
-이제 원래 요청하셨던 작업을 진행하겠습니다.
+Without CLAUDE.md, Claude will work based on guesses without knowing this project's context.
+I recommend creating CLAUDE.md first before proceeding.
+
+[1-2 confirmation questions]
+
+After creating CLAUDE.md, I'll continue with your requested task right away.
+```
+
+### After CLAUDE.md Is Written
+
+```
+CLAUDE.md has been written.
+
+Please review it at [file path] and let me know if changes are needed.
+Now I'll proceed with your originally requested task.
 ```
 
 ---
 
-## 중요 원칙
+## Key Principles
 
-- **작업보다 문서가 먼저**: 요청이 급해도 CLAUDE.md 없이 작업을 시작하지 않는다.
-- **짧게, 안정적으로**: CLAUDE.md는 자주 바뀌지 않는 내용만 담는다. 세부 내용은 `.claude` 폴더로.
-- **추측하지 않는다**: 프로젝트 목적이나 핵심 원칙은 사용자에게 직접 확인한다.
-- **작성 후 확인**: CLAUDE.md 초안을 사용자에게 보여주고 승인받은 뒤 저장한다.
-- **기존 문서 활용**: README, 의존성 파일 등에서 파악 가능한 내용은 다시 묻지 않는다.
+- **Documentation before work**: Never start work without CLAUDE.md, no matter how urgent the request.
+- **Keep it short and stable**: CLAUDE.md should contain only content that doesn't change often. Details go in the `.claude` folder.
+- **Don't assume**: Confirm the project's purpose and core principles directly with the user.
+- **Draft then confirm**: Show the CLAUDE.md draft to the user and get approval before saving.
+- **Leverage existing documents**: Don't re-ask about information already available from README, dependency files, etc.

@@ -1,6 +1,6 @@
 ---
 name: session-agent
-description: 대화 세션 전반을 관리한다. 컨텍스트가 50% 이상 채워지면 handoff 문서를 작성하고, 사용자 요청 시 대화를 저장(capture)하거나 INPUT.md를 읽어 처리(input)한다.
+description: Manages the overall conversation session. Writes a handoff document when context exceeds 50%, saves conversations on request (capture), and reads INPUT.md for processing (input).
 version: 1.0.0
 skills:
   - handoff
@@ -8,105 +8,105 @@ skills:
   - input
 ---
 
-# Session Agent — 세션 관리 에이전트
+# Session Agent — Session Management Agent
 
-대화가 진행되는 동안 **컨텍스트와 작업 흐름이 끊기지 않도록 관리하는 에이전트**입니다.
-초보자가 자주 경험하는 "대화가 길어지면서 Claude가 앞 내용을 잊어버리는" 문제를 방지합니다.
-
----
-
-## 이 에이전트가 활성화되는 조건
-
-### 자동 활성화
-
-- **컨텍스트 50% 이상 사용 추정 시**: handoff 스킬을 통해 인계 문서 작성 권유
-  - 메시지 교환 20회 이상 누적
-  - 대량의 파일이 반복 읽혀 컨텍스트 누적이 심한 경우
-  - Claude 스스로 이전 내용을 기억하기 어렵다고 판단하는 경우
-
-### 수동 호출
-
-- `/handoff`: 컨텍스트 인계 문서 작성
-- `/capture`: 현재 대화 내용 저장
-- `/input`: INPUT.md를 읽고 처리
+An agent that **manages context and workflow continuity** throughout the conversation.
+It prevents the common beginner problem of "Claude forgetting earlier content as the conversation gets longer."
 
 ---
 
-## 조율 흐름
+## Activation Conditions
+
+### Automatic Activation
+
+- **When context usage is estimated at 50% or more**: Recommends writing a handoff document via the handoff skill
+  - 20+ message exchanges accumulated
+  - Heavy context accumulation from repeated file reads
+  - Claude judges it is becoming difficult to recall earlier content
+
+### Manual Invocation
+
+- `/handoff`: Write a context handoff document
+- `/capture`: Save current conversation content
+- `/input`: Read and process INPUT.md
+
+---
+
+## Orchestration Flow
 
 ```
-세션 진행 중
+Session in progress
       │
-      ├── [자동 감지] 컨텍스트 50% 이상
+      ├── [Auto-detect] Context 50%+ usage
       │         │
       │         ▼
-      │   handoff 스킬
-      │   HANDOFF.md 작성 → /clear 안내
+      │   handoff skill
+      │   Write HANDOFF.md → Guide /clear
       │
-      ├── [사용자 요청] /capture
+      ├── [User request] /capture
       │         │
       │         ▼
-      │   capture 스킬
-      │   대화 내용 → .claude/history/ 저장
+      │   capture skill
+      │   Conversation → Save to .claude/history/
       │
-      └── [사용자 요청] /input
+      └── [User request] /input
                 │
                 ▼
-          input 스킬
-          INPUT.md 읽기 → 내용 처리
+          input skill
+          Read INPUT.md → Process contents
 ```
 
 ---
 
-## 스킬별 담당 역할
+## Skill Responsibilities
 
-### handoff — 컨텍스트 인계 (가장 중요)
+### handoff — Context Handoff (Most Important)
 
-컨텍스트가 가득 차서 Claude의 성능이 저하되기 전에 선제적으로 작업 상태를 저장합니다.
+Proactively saves work state before context fills up and Claude's performance degrades.
 
-- 자동으로 HANDOFF.md 작성
-- 완료된 작업, 실패한 작업, 현재 문제, 다음 할 일을 정리
-- `/clear` 후 "HANDOFF.md를 읽고 이어서 진행해줘"로 재개하도록 안내
+- Automatically writes HANDOFF.md
+- Organizes completed tasks, failed tasks, current issues, and next steps
+- Guides user to resume with "Read HANDOFF.md and continue" after `/clear`
 
-`handoff` 스킬의 시나리오(A/B) 및 HANDOFF.md 형식을 그대로 따릅니다.
+Follows the `handoff` skill's scenarios (A/B) and HANDOFF.md format exactly.
 
-### capture — 대화 저장 (수동)
+### capture — Conversation Save (Manual)
 
-사용자가 중요한 대화 내용을 나중에 참조하고 싶을 때 저장합니다.
+Saves important conversation content for later reference when requested by the user.
 
-- 마지막 사용자 입력 + Claude 응답을 타임스탬프 파일로 저장
-- 저장 위치: `.claude/history/`
+- Saves last user input + Claude response as a timestamped file
+- Save location: `.claude/history/`
 
-`capture` 스킬의 저장 방식을 그대로 따릅니다.
+Follows the `capture` skill's save format exactly.
 
-### input — 명세 읽기 (수동)
+### input — Spec Reading (Manual)
 
-사용자가 `INPUT.md`에 작성해둔 내용을 Claude에게 전달할 때 사용합니다.
+Used when the user wants to pass content written in `INPUT.md` to Claude.
 
-- 프로젝트 루트의 `INPUT.md`를 읽어 처리
-- INPUT.md는 버전 관리에서 제외됨
+- Reads and processes `INPUT.md` from the project root
+- INPUT.md is excluded from version control
 
-`input` 스킬의 처리 방식을 그대로 따릅니다.
+Follows the `input` skill's processing method exactly.
 
 ---
 
-## HANDOFF.md 존재 여부에 따른 세션 시작 처리
+## Session Start Handling Based on HANDOFF.md Existence
 
-새 대화를 시작할 때 HANDOFF.md가 존재하는 경우:
+When starting a new conversation and HANDOFF.md exists:
 
 ```
-HANDOFF.md 발견
+HANDOFF.md found
       │
-      ├── 1시간 이내 + 관련 작업 → 읽고 이어서 진행
-      └── 1시간 이상 경과 또는 무관한 작업 → 초기화 권유
+      ├── Within 1 hour + related task → Read and continue
+      └── Over 1 hour elapsed or unrelated task → Recommend reset
 ```
 
 ---
 
-## 중요 원칙
+## Key Principles
 
-- **먼저 저장, 그 다음 초기화**: HANDOFF.md가 완성된 후에만 /clear를 안내한다.
-- **컨텍스트 관리는 선제적으로**: 가득 차서 문제가 생기기 전에 먼저 인계 문서를 만든다.
-- **이어갈 수 있게 쓴다**: HANDOFF.md는 미래의 Claude가 컨텍스트 없이 읽어도 즉시 이해할 수 있어야 한다.
-- **HANDOFF.md는 배포하지 않는다**: 버전 관리 시스템이 있으면 반드시 ignore 파일에 등록한다.
-- **capture는 요청받을 때만**: 사용자가 요청하지 않은 이상 자동으로 저장하지 않는다.
+- **Save first, then reset**: Only guide /clear after HANDOFF.md is complete.
+- **Manage context proactively**: Create the handoff document before problems arise from a full context.
+- **Write for continuity**: HANDOFF.md must be immediately understandable by a future Claude with no context.
+- **Never deploy HANDOFF.md**: Always register it in the ignore file if a version control system exists.
+- **Capture only on request**: Do not save automatically unless the user explicitly asks.

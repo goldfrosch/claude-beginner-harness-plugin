@@ -1,171 +1,171 @@
 ---
 name: clarify
-description: 작업 요구사항이 모호하거나 AI가 추론을 해야 하는 상황일 때 반드시 이 스킬을 사용한다. 사용자가 새로운 기능, 코드 작성, 버그 수정, 리팩토링, 설계를 요청할 때 - 특히 "만들어줘", "추가해줘", "고쳐줘", "개선해줘"처럼 목적이나 범위가 불분명한 경우 - 즉시 코드 작업을 시작하지 말고 이 스킬을 통해 요구사항을 먼저 구체화한다. 단, 바이브코딩 영역(일회성/실험/데모 등)으로 판단되는 경우에는 질문지 없이 AI가 자율적으로 진행한다.
+description: Must be used when task requirements are ambiguous or AI would need to make assumptions. When the user requests new features, code, bug fixes, refactoring, or design — especially with vague scope or purpose — do not start coding immediately; use this skill to clarify requirements first. Exception: vibe-coding tasks (one-off/experimental/demo) proceed autonomously without a questionnaire.
 version: 1.1.0
 ---
 
-# Clarify — 요구사항 구체화 스킬
+# Clarify — Requirements Clarification Skill
 
-코드를 작성하기 전에 **"무엇을 만들어야 하는가"를 명확히 하는 습관**을 만들기 위한 스킬입니다.
-요구사항이 불분명한 채로 작업을 시작하면 방향이 틀린 결과물이 나올 수 있습니다.
-질문에 충분히 답하고 나서 작업을 시작하는 것이 훨씬 효율적입니다.
+A skill for building the habit of **clearly defining "what needs to be built"** before writing code.
+Starting work with unclear requirements can lead to results that miss the mark.
+Answering questions thoroughly before starting is far more efficient.
 
-단, **바이브코딩 영역**에 해당하는 작업은 예외입니다. 실험/데모/일회성 코드에 매번 질문지를 들이미는 것은 오히려 흐름을 방해합니다.
+However, **vibe-coding tasks** are an exception. Presenting a questionnaire for every experiment/demo/one-off piece of code disrupts the flow.
 
 ---
 
-## 0단계: Scope 판단 (항상 먼저 실행)
+## Step 0: Scope Check (Always Runs First)
 
-clarify 질문지를 제시하기 전에, 이 작업이 **바이브코딩 영역**인지 먼저 판단합니다.
+Before presenting the clarify questionnaire, first determine whether this task is in the **vibe-coding category**.
 
-### 바이브코딩 영역이면 → clarify 생략, 자율 진행
+### If Vibe-Coding → Skip clarify, proceed autonomously
 
-다음 조건 중 두 가지 이상 해당하면 질문지 없이 바로 작업합니다:
+If two or more of the following conditions apply, proceed without a questionnaire:
 
-- **일회성**: 반복 사용되지 않거나 재사용 가능성이 낮은 코드
-- **낮은 중요도**: 잘못 만들어도 다시 만드는 비용이 낮은 코드
-- **실험/프로토타입**: 아이디어 검증이나 PoC 목적
-- **독립성**: 프로덕션 코드나 다른 모듈과 연결되지 않는 코드
-- **비보안**: 인증, 권한, 민감 데이터 처리와 무관한 코드
+- **One-off**: Code that won't be reused or has low reuse potential
+- **Low importance**: Code where the cost of rebuilding is low even if done wrong
+- **Experiment/prototype**: Purpose is idea validation or PoC
+- **Independence**: Code not connected to production code or other modules
+- **Non-security**: Code unrelated to authentication, authorization, or sensitive data handling
 
-바이브코딩으로 진행 후에는 완성된 코드와 함께 선택 이유 및 프로덕션 사용 시 주의사항을 간략히 설명합니다.
+After completing vibe-coding, briefly explain the reasoning behind choices and production caveats alongside the finished code.
 
-### 협업 설계 영역이면 → 아래 clarify 프로세스 진행
+### If Collaborative Design → Proceed with clarify process below
 
-다음 중 하나라도 해당하면 반드시 질문지를 거칩니다:
+If any of the following apply, the questionnaire is mandatory:
 
-- 프로덕션 배포 예정 코드
-- 보안 관련 코드 (인증, 권한, 암호화, 민감 데이터)
-- 성능 최적화 (핫패스, DB 쿼리, 캐싱 전략)
-- 핵심 추상화 (다른 코드들이 의존하는 공통 인터페이스, 베이스 클래스)
-- 데이터 모델 변경 (DB 스키마, 마이그레이션)
-- 외부 시스템 연동
+- Code intended for production deployment
+- Security-related code (authentication, authorization, encryption, sensitive data)
+- Performance optimization (hot paths, DB queries, caching strategies)
+- Core abstractions (shared interfaces, base classes that other code depends on)
+- Data model changes (DB schema, migrations)
+- External system integrations
 
-### 판단이 애매한 경우
+### If Unclear
 
-어느 쪽인지 불명확하면 짧게 물어봅니다:
+Ask briefly:
 
 ```
-이 코드가 어떤 목적으로 사용될지에 따라 접근 방식이 달라집니다.
+The approach differs depending on the purpose of this code.
 
-- 빠르게 실험하거나 데모용으로 만드는 건가요? (바이브코딩으로 진행)
-- 실제 서비스에 배포될 코드인가요? (요구사항 정리 후 진행)
+- Is this for quick experimentation or a demo? (Proceed with vibe-coding)
+- Is this code that will be deployed to production? (Proceed after clarifying requirements)
 ```
 
 ---
 
-## 이 스킬이 활성화되는 조건
+## Activation Conditions
 
-**Scope 판단 결과 협업 설계 영역**으로 분류된 후, 다음 중 하나라도 해당하면 **즉시 코드 작업을 중단하고 질문지를 제시**합니다:
+After **scope determines this is a collaborative design task**, if any of the following apply, **stop coding immediately and present the questionnaire**:
 
-- 요청에 구체적인 동작 방식, 입출력, 범위가 명시되지 않은 경우
-- "좋게", "깔끔하게", "개선", "최적화"처럼 기준이 주관적인 표현이 포함된 경우
-- AI가 기술 스택, 구조, 동작 방식을 스스로 선택해야 하는 경우
-- 요청이 여러 가지 방향으로 해석될 수 있는 경우
-- 기존 코드와의 연결 방식이 불분명한 경우
-
----
-
-## 질문지 제시 방식
-
-아래 카테고리 중 **현재 요청과 관련 있는 항목만 골라** 질문지를 구성합니다.
-모든 질문을 다 물어볼 필요는 없습니다. 불명확한 부분에 집중하세요.
+- The request lacks specific behavior, I/O, or scope definitions
+- Subjective expressions like "nice", "clean", "improve", "optimize" are included
+- AI would need to choose the tech stack, structure, or behavior on its own
+- The request can be interpreted in multiple directions
+- How it connects to existing code is unclear
 
 ---
 
-### 1. 목적과 배경
+## Questionnaire Presentation Method
 
-> 무엇을 위해 이것이 필요한가?
-
-- 이 기능/코드가 해결하려는 문제는 무엇인가요?
-- 누가 사용하게 되나요? (사용자, 개발자, 시스템 내부 등)
-- 이것이 없으면 어떤 불편함이 있나요?
-
-### 2. 입력과 출력
-
-> 무엇이 들어오고, 무엇이 나와야 하는가?
-
-- 어떤 값이 입력으로 들어오나요? (형식, 범위, 예시)
-- 결과로 무엇이 반환/출력되어야 하나요?
-- 성공 케이스와 실패 케이스 각각 어떻게 처리되어야 하나요?
-
-### 3. 범위와 경계
-
-> 어디까지 만들어야 하는가?
-
-- 이번에 구현할 범위는 어디까지인가요?
-- 포함하지 않아도 되는 것은 무엇인가요?
-- 나중에 확장될 가능성을 고려해야 하나요?
-
-### 4. 기술 조건
-
-> 어떤 환경과 제약 안에서 만들어야 하는가?
-
-- 사용해야 하는 언어, 프레임워크, 라이브러리가 있나요?
-- 반드시 지켜야 할 코딩 스타일이나 컨벤션이 있나요?
-- 성능, 보안, 호환성 관련 요구사항이 있나요?
-
-### 5. 기존 코드와의 관계
-
-> 새로 만드는가, 기존 것을 바꾸는가?
-
-- 수정할 기존 코드나 파일이 있나요?
-- 다른 모듈/함수와 어떻게 연결되어야 하나요?
-- 기존 인터페이스(함수 시그니처, API 등)를 유지해야 하나요?
-
-### 6. 엣지 케이스와 예외
-
-> 예상치 못한 상황은 어떻게 처리해야 하는가?
-
-- 잘못된 입력이 들어오면 어떻게 해야 하나요?
-- 네트워크 오류, 빈 값, 중복 등 특수한 상황은 어떻게 처리하나요?
-- 실패 시 사용자에게 어떤 메시지나 행동이 필요한가요?
-
-### 7. 완료 기준
-
-> 언제 "다 됐다"고 할 수 있는가?
-
-- 어떤 결과물이 나오면 이 작업이 완료된 건가요?
-- 테스트나 검증이 필요한가요? 어떻게 확인하나요?
-- 완성된 모습의 예시를 설명해줄 수 있나요?
+From the categories below, **select only items relevant to the current request** to compose the questionnaire.
+Not all questions need to be asked. Focus on the unclear parts.
 
 ---
 
-## 질문지를 제시하는 방법
+### 1. Purpose and Background
 
-1. 위 카테고리에서 **현재 요청에 불분명한 항목**을 선별합니다.
-2. 질문들을 번호 목록으로 정리해서 한 번에 제시합니다.
-3. 사용자가 답변하면, 추가로 불명확한 부분이 있는지 확인합니다.
-4. 요구사항이 충분히 구체화되면 **요약본을 작성해서 확인**을 받습니다.
-5. 확인이 완료된 후에 코드 작업을 시작합니다.
+> Why is this needed?
+
+- What problem does this feature/code solve?
+- Who will use it? (Users, developers, internal systems, etc.)
+- What inconvenience exists without it?
+
+### 2. Input and Output
+
+> What goes in, and what should come out?
+
+- What values come in as input? (Format, range, examples)
+- What should be returned/output as a result?
+- How should success and failure cases each be handled?
+
+### 3. Scope and Boundaries
+
+> How far should this go?
+
+- What is the scope of this implementation?
+- What can be excluded?
+- Should future extensibility be considered?
+
+### 4. Technical Constraints
+
+> What environment and constraints apply?
+
+- Are there required languages, frameworks, or libraries?
+- Are there coding styles or conventions that must be followed?
+- Are there performance, security, or compatibility requirements?
+
+### 5. Relationship to Existing Code
+
+> Is this new code, or a modification of existing code?
+
+- Are there existing files or code to modify?
+- How should this connect to other modules/functions?
+- Must existing interfaces (function signatures, APIs, etc.) be preserved?
+
+### 6. Edge Cases and Exceptions
+
+> How should unexpected situations be handled?
+
+- What should happen with invalid input?
+- How should network errors, empty values, duplicates, etc. be handled?
+- What messages or behaviors are needed when failures occur?
+
+### 7. Completion Criteria
+
+> When can we say "it's done"?
+
+- What deliverable marks this task as complete?
+- Is testing or verification needed? How?
+- Can you describe what the finished result looks like?
 
 ---
 
-## 요구사항 요약본 형식
+## How to Present the Questionnaire
 
-질문 답변이 끝나면 아래 형식으로 요약해서 사용자에게 확인을 받습니다:
+1. Select **items that are unclear for the current request** from the categories above.
+2. Present the questions as a numbered list all at once.
+3. After the user responds, check if any additional clarification is needed.
+4. Once requirements are sufficiently specific, **write a summary and get confirmation**.
+5. Start coding only after confirmation is received.
+
+---
+
+## Requirements Summary Format
+
+After the Q&A is complete, summarize in the format below and get user confirmation:
 
 ```
-## 요구사항 요약
+## Requirements Summary
 
-**목적**: [이 작업이 해결하는 문제]
-**결과물**: [만들어야 할 것]
-**입력**: [들어오는 값]
-**출력**: [나와야 할 결과]
-**범위**: [포함/제외 항목]
-**기술 조건**: [언어, 프레임워크, 제약]
-**완료 기준**: [완성 판단 기준]
+**Purpose**: [The problem this task solves]
+**Deliverable**: [What needs to be built]
+**Input**: [Incoming values]
+**Output**: [Expected results]
+**Scope**: [Included/excluded items]
+**Technical constraints**: [Language, framework, constraints]
+**Completion criteria**: [How to judge completion]
 
-이 내용으로 작업을 진행해도 될까요?
+Shall I proceed with this?
 ```
 
-사용자가 확인하면 작업을 시작합니다.
+Start work once the user confirms.
 
 ---
 
-## 중요 원칙
+## Key Principles
 
-- **추측하지 않는다**: 불분명한 것은 반드시 묻는다. 짐작으로 만들면 다시 만들어야 한다.
-- **한 번에 묻는다**: 질문을 여러 번에 나눠 묻지 않고, 한 번에 모아서 제시한다.
-- **관련 있는 것만 묻는다**: 모든 카테고리를 다 물을 필요 없다. 불명확한 부분에 집중한다.
-- **요약 후 확인**: 작업 전 반드시 요약본을 공유하고 승인을 받는다.
+- **Don't assume**: Always ask about unclear points. Building on guesses means rebuilding later.
+- **Ask all at once**: Don't split questions across multiple exchanges. Present them together.
+- **Ask only what's relevant**: Not every category needs to be covered. Focus on unclear areas.
+- **Summarize then confirm**: Always share a summary and get approval before starting work.

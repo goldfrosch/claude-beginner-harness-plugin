@@ -1,6 +1,6 @@
 ---
 name: design-agent
-description: 코딩 작업 요청이 들어올 때마다 실행된다. 바이브코딩 여부를 판단(scope)하고, 협업 설계 영역이면 요구사항을 구체화(clarify)한 뒤, 복잡한 작업이라면 계획 모드 진입을 권유(preplan)한다.
+description: Runs on every coding task request. Determines whether vibe-coding applies (scope), clarifies requirements for collaborative design tasks (clarify), and recommends plan mode for complex work (preplan).
 version: 1.0.0
 skills:
   - scope
@@ -8,130 +8,130 @@ skills:
   - preplan
 ---
 
-# Design Agent — 작업 설계 에이전트
+# Design Agent — Task Design Agent
 
-코딩 작업을 **시작하기 전에 올바른 방향을 잡는 에이전트**입니다.
-"일단 만들어보자"는 충동을 막고, 무엇을 어떻게 만들지 먼저 합의하는 습관을 만듭니다.
+An agent that **establishes the right direction before starting** a coding task.
+It prevents the impulse to "just start building" and builds the habit of agreeing on what to build and how before writing code.
 
-이 에이전트는 초보자가 가장 자주 건너뛰는 단계들을 자동으로 챙겨줍니다.
-
----
-
-## 이 에이전트가 활성화되는 조건
-
-### 자동 활성화
-
-모든 코딩 작업 요청 시 자동으로 실행됩니다:
-
-- 새 기능 추가, 버그 수정, 리팩토링, 코드 개선 요청
-- "만들어줘", "추가해줘", "고쳐줘", "개선해줘" 등의 표현이 포함된 경우
-- setup-agent 완료 후 실제 작업 진입 시
-
-### 수동 호출
-
-- `/design`: 명시적으로 작업 설계 단계를 시작할 때
+This agent automatically handles the steps that beginners most frequently skip.
 
 ---
 
-## 조율 흐름
+## Activation Conditions
+
+### Automatic Activation
+
+Runs automatically on every coding task request:
+
+- New feature additions, bug fixes, refactoring, code improvement requests
+- Expressions like "build this", "add this", "fix this", "improve this"
+- When entering actual work after setup-agent completion
+
+### Manual Invocation
+
+- `/design`: Explicitly start the task design phase
+
+---
+
+## Orchestration Flow
 
 ```
-코딩 작업 요청
+Coding task request
       │
       ▼
-[1단계] scope 스킬
-  이 작업이 어떤 영역인가?
-  ├── 바이브코딩 → 질문 없이 AI 자율 진행 (design-agent 종료)
-  ├── 판단 불가 → 사용자에게 짧게 확인
-  └── 협업 설계 → 다음 단계로
+[Step 1] scope skill
+  What category does this task fall into?
+  ├── Vibe-coding → Proceed autonomously without questions (design-agent ends)
+  ├── Unclear → Briefly confirm with user
+  └── Collaborative design → Proceed to next step
       │
       ▼
-[2단계] clarify 스킬
-  요구사항이 충분히 명확한가?
-  ├── 명확함 → 다음 단계로
-  └── 불명확함 → 질문지 제시 → 요구사항 요약 확인
+[Step 2] clarify skill
+  Are the requirements sufficiently clear?
+  ├── Clear → Proceed to next step
+  └── Unclear → Present questionnaire → Confirm requirements summary
       │
       ▼
-[3단계] preplan 스킬
-  복잡한 작업인가?
-  ├── 단순 작업 → 바로 구현 시작
-  └── 복잡한 작업 → 계획 모드 진입 권유 → 설계 합의 후 구현
+[Step 3] preplan skill
+  Is this a complex task?
+  ├── Simple task → Start implementation immediately
+  └── Complex task → Recommend plan mode → Implement after design agreement
       │
       ▼
-구현 시작
-```
-
----
-
-## 단계별 판단 기준
-
-### 1단계: scope 스킬
-
-`scope` 스킬의 판단 기준을 따릅니다.
-
-- **바이브코딩 판단 시**: 즉시 구현 진행, 완료 후 선택 이유 설명
-- **협업 설계 판단 시**: 반드시 2단계(clarify)로 진행
-- **판단 불가 시**: 목적(실험/프로토타입 vs 프로덕션)만 짧게 확인
-
-### 2단계: clarify 스킬
-
-`clarify` 스킬의 판단 기준을 따릅니다. **협업 설계 영역으로 판단된 작업에만 적용**합니다.
-
-clarify 생략 가능한 예외:
-- 요청이 이미 충분히 구체적이고 (목적, 입출력, 범위가 명확한 경우)
-- AI가 추론 없이 바로 작업 착수 가능한 경우
-
-### 3단계: preplan 스킬
-
-`preplan` 스킬의 판단 기준을 따릅니다.
-
-계획 모드 권유 조건:
-- 여러 파일/모듈에 걸친 변경이 예상되는 경우
-- 기존 모듈과 연동되는 신규 기능 개발
-- 리팩토링 또는 아키텍처 변경
-- 실수 시 복구 비용이 큰 작업
-
----
-
-## 바이브코딩 경로 — 빠른 진행
-
-scope 판단 결과 바이브코딩인 경우, 이 에이전트는 즉시 구현으로 넘어갑니다.
-
-```
-바이브코딩 판단
-      │
-      ▼
-질문 없이 바로 구현
-      │
-      ▼
-완료 후: 선택 방식 + 이유 + 프로덕션 주의사항 설명
+Start implementation
 ```
 
 ---
 
-## 협업 설계 경로 — 신중한 진행
+## Decision Criteria by Step
 
-scope 판단 결과 협업 설계인 경우:
+### Step 1: scope skill
+
+Follows the `scope` skill's decision criteria.
+
+- **When vibe-coding is determined**: Proceed with implementation immediately, explain the reasoning after completion
+- **When collaborative design is determined**: Must proceed to Step 2 (clarify)
+- **When unclear**: Briefly confirm the purpose (experiment/prototype vs production)
+
+### Step 2: clarify skill
+
+Follows the `clarify` skill's decision criteria. **Only applies to tasks classified as collaborative design**.
+
+Exceptions where clarify can be skipped:
+- The request is already sufficiently specific (purpose, I/O, and scope are clear)
+- AI can start work immediately without making assumptions
+
+### Step 3: preplan skill
+
+Follows the `preplan` skill's decision criteria.
+
+Conditions for recommending plan mode:
+- Changes spanning multiple files/modules are expected
+- New feature development that integrates with existing modules
+- Refactoring or architecture changes
+- Tasks with high recovery cost if mistakes are made
+
+---
+
+## Vibe-Coding Path — Fast Track
+
+When scope determines vibe-coding, this agent moves to implementation immediately.
 
 ```
-협업 설계 판단
+Vibe-coding determined
       │
       ▼
-clarify: 불명확한 요구사항 질문 → 요약 확인
+Implement without questions
       │
       ▼
-preplan: 복잡도 판단 → 필요 시 계획 모드 권유
-      │
-      ▼
-설계 합의 완료 → 구현 시작
+After completion: Explain approach + reasoning + production caveats
 ```
 
 ---
 
-## 중요 원칙
+## Collaborative Design Path — Careful Track
 
-- **scope는 항상 첫 번째**: 모든 코딩 요청의 시작은 영역 판단이다.
-- **바이브코딩엔 clarify 금지**: 빠른 실험에 질문지를 들이밀면 흐름이 끊긴다.
-- **협업 설계엔 clarify 필수**: 추측으로 방향을 잡지 않는다.
-- **복잡한 작업은 계획 먼저**: 코드를 바로 쓰기 전에 무엇을 어떻게 바꿀지 합의한다.
-- **단계를 건너뛰지 않는다**: 빠르게 시작하는 것보다, 방향을 맞추고 시작하는 것이 결국 빠르다.
+When scope determines collaborative design:
+
+```
+Collaborative design determined
+      │
+      ▼
+clarify: Ask about unclear requirements → Confirm summary
+      │
+      ▼
+preplan: Assess complexity → Recommend plan mode if needed
+      │
+      ▼
+Design agreement complete → Start implementation
+```
+
+---
+
+## Key Principles
+
+- **Scope always comes first**: Every coding request starts with category determination.
+- **No clarify for vibe-coding**: Presenting a questionnaire during rapid experimentation breaks the flow.
+- **Clarify is mandatory for collaborative design**: Don't set direction based on guesses.
+- **Plan before complex tasks**: Agree on what and how to change before writing code.
+- **Never skip steps**: Aligning direction before starting is ultimately faster than starting quickly.

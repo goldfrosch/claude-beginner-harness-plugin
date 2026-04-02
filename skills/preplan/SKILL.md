@@ -1,94 +1,94 @@
 ---
 name: preplan
-description: 컨텍스트가 없는 상태에서 복잡한 작업을 요청받았을 때 사용한다. 도메인 용어를 정립하고, 여러 파일/모듈에 영향을 주는 기능 변경, 기존 모듈을 활용한 신규 기능 개발, 리팩토링 작업에서는 계획 모드(Plan Mode)를 사용할 것을 권유한다.
+description: Used when a complex task is requested without prior context. Establishes domain terminology and recommends Plan Mode for changes spanning multiple files/modules, new features built on existing modules, and refactoring work.
 version: 1.0.0
 ---
 
-# Preplan — 작업 시작 전 준비 스킬
+# Preplan — Pre-Work Preparation Skill
 
-복잡한 작업을 시작하기 전에 **도메인 언어를 맞추고, 필요하다면 계획 모드에서 설계를 먼저 하는 습관**을 만들기 위한 스킬입니다.
-컨텍스트 없이 큰 작업을 바로 시작하면 방향이 어긋난 결과물이 나올 수 있습니다.
-
----
-
-## 이 스킬이 활성화되는 조건
-
-다음 상황에서 **즉시 코드 작업을 시작하지 않고 이 스킬을 통해 준비 단계를 진행**합니다:
-
-- 대화 초반에 충분한 컨텍스트 없이 복잡한 작업을 요청받은 경우
-- 요청에 사용된 용어가 서비스의 도메인과 일치하는지 확인이 필요한 경우
-- 아래 **계획 모드 권유 조건** 중 하나 이상에 해당하는 경우
+A skill for building the habit of **aligning domain language and designing in plan mode before starting complex tasks**.
+Jumping straight into a large task without context can lead to results that miss the mark.
 
 ---
 
-## 계획 모드(Plan Mode)를 권유하는 조건
+## Activation Conditions
 
-다음 중 하나라도 해당하면 **`/plan` 명령어 또는 계획 모드 진입을 권유**합니다:
+In the following situations, **do not start coding immediately — proceed through this skill's preparation steps**:
 
-- **여러 파일/모듈에 영향을 주는 기능 변경**: 변경이 한 곳에 그치지 않고 여러 레이어(API, 서비스, DB, UI 등)에 걸쳐 있는 경우
-- **기존 모듈을 활용한 신규 기능 개발**: 이미 있는 여러 모듈과 연결해서 새 기능을 만들어야 하는 경우
-- **리팩토링**: 기존 코드의 구조를 바꾸거나, 공통 로직을 분리하거나, 의존성을 정리하는 작업
-- **아키텍처 변경**: 레이어 구조, 모듈 간 의존 방향, 공통 인터페이스 등 설계 근간을 바꾸는 작업
-- **복구 비용이 큰 작업**: 실수했을 때 되돌리기 어려운 작업 (예: DB 스키마 변경, 마이그레이션, 데이터 변환, 외부 시스템 연동 변경 등)
-
-계획 모드에서 먼저 설계 방향을 잡고 승인을 받은 후 구현을 시작하면, 중간에 방향을 바꾸는 비용을 줄일 수 있습니다.
+- A complex task is requested early in the conversation without sufficient context
+- Terminology used in the request needs to be verified against the service's domain
+- One or more of the **plan mode recommendation conditions** below apply
 
 ---
 
-## 도메인 용어 정립
+## Conditions for Recommending Plan Mode
 
-작업에 사용되는 용어가 실제 서비스의 언어와 맞는지 확인합니다.
+If any of the following apply, **recommend `/plan` command or plan mode entry**:
 
-### 왜 중요한가?
+- **Feature changes affecting multiple files/modules**: Changes span multiple layers (API, service, DB, UI, etc.)
+- **New feature development using existing modules**: Building new functionality by connecting multiple existing modules
+- **Refactoring**: Restructuring existing code, extracting shared logic, or reorganizing dependencies
+- **Architecture changes**: Modifying foundational design elements like layer structure, module dependency directions, or shared interfaces
+- **High recovery cost tasks**: Tasks that are difficult to undo if mistakes are made (e.g., DB schema changes, migrations, data transformations, external system integration changes)
 
-같은 개념도 서비스마다 부르는 이름이 다릅니다.
-Claude가 일반적인 용어로 코드를 작성하면, 기존 코드베이스와 이질감이 생기고 혼란이 발생합니다.
-
-**예시**:
-- "사용자"를 이 서비스에서는 `Member`라고 부르는가, `User`라고 부르는가, `Account`라고 부르는가?
-- "주문"은 `Order`인가 `Purchase`인가 `Transaction`인가?
-- "게시글"은 `Post`인가 `Article`인가 `Content`인가?
-
-### 확인 방법
-
-기존 코드를 기준으로 파악하는 것이 가장 정확합니다:
-
-1. 요청에 등장하는 주요 개념(명사)을 추출합니다.
-2. 해당 개념이 코드베이스에서 어떻게 불리는지 확인합니다.
-3. 불일치가 있거나 코드베이스가 없는 경우, 사용자에게 직접 확인합니다.
-
-**질문 예시**:
-> 요청에 "사용자"가 등장합니다. 이 서비스에서 사용자를 가리키는 용어로 어떤 것을 사용하고 있나요? (예: `User`, `Member`, `Account`)
+Establishing the design direction in plan mode and getting approval before implementation reduces the cost of mid-course corrections.
 
 ---
 
-## Preplan 진행 순서
+## Domain Terminology Alignment
 
-1. **도메인 용어 확인**: 요청에 등장하는 핵심 개념의 서비스 내 명칭을 파악합니다.
-2. **작업 성격 판단**: 계획 모드 권유 조건에 해당하는지 확인합니다.
-3. **계획 모드 권유 (해당 시)**: 아래 형식으로 계획 모드 진입을 제안합니다.
-4. **작업 진행**: 용어가 정립되고 방향이 합의된 후 구현을 시작합니다.
+Verify that terminology used in the task matches the actual service's language.
+
+### Why It Matters
+
+The same concept can have different names across services.
+If Claude writes code using generic terms, it creates inconsistency with the existing codebase and causes confusion.
+
+**Examples**:
+- Does this service call a "user" `Member`, `User`, or `Account`?
+- Is an "order" called `Order`, `Purchase`, or `Transaction`?
+- Is a "post" called `Post`, `Article`, or `Content`?
+
+### How to Verify
+
+The most accurate approach is to check existing code:
+
+1. Extract key concepts (nouns) from the request.
+2. Check how those concepts are named in the codebase.
+3. If there's a mismatch or no codebase exists, confirm directly with the user.
+
+**Question example**:
+> The request mentions "user." What term does this service use for users? (e.g., `User`, `Member`, `Account`)
 
 ---
 
-## 계획 모드 권유 메시지 형식
+## Preplan Execution Order
+
+1. **Verify domain terminology**: Identify the service-specific names for key concepts in the request.
+2. **Assess task nature**: Check if plan mode recommendation conditions apply.
+3. **Recommend plan mode (if applicable)**: Suggest plan mode entry using the format below.
+4. **Proceed with work**: Start implementation after terminology is aligned and direction is agreed upon.
+
+---
+
+## Plan Mode Recommendation Message Format
 
 ```
-이 작업은 [이유: 여러 모듈에 걸친 변경 / 기존 모듈 연동 / 리팩토링]이 포함되어 있어
-계획 모드에서 먼저 설계 방향을 잡는 것을 권유합니다.
+This task involves [reason: changes across multiple modules / existing module integration / refactoring],
+so I recommend establishing the design direction in plan mode first.
 
-계획 모드에서는:
-- 변경이 필요한 파일과 모듈을 미리 파악합니다.
-- 구현 순서와 접근 방식을 설계합니다.
-- 설계 방향에 대해 먼저 확인을 받은 후 코드를 작성합니다.
+In plan mode:
+- Files and modules that need changes are identified in advance.
+- Implementation order and approach are designed.
+- Design direction is confirmed before writing code.
 
-계획 모드로 진행할까요?
+Shall I proceed in plan mode?
 ```
 
 ---
 
-## 중요 원칙
+## Key Principles
 
-- **용어는 서비스 기준으로**: Claude의 일반적인 표현이 아닌, 실제 코드베이스의 언어를 따른다.
-- **큰 작업은 설계 먼저**: 코드를 바로 쓰기 전에 무엇을 어떻게 바꿀지 합의한다.
-- **과정을 생략하지 않는다**: 빠르게 시작하는 것보다, 방향을 맞추고 시작하는 것이 결국 빠르다.
+- **Use the service's terminology**: Follow the actual codebase language, not Claude's generic expressions.
+- **Design before big tasks**: Agree on what and how to change before writing code.
+- **Don't skip the process**: Aligning direction before starting is ultimately faster than starting quickly.

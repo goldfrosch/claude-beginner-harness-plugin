@@ -1,92 +1,92 @@
 ---
 name: capture
-description: 마지막 사용자 입력과 그에 대한 Claude의 출력을 추출해 .claude/history/ 폴더에 타임스탬프 파일명으로 저장한다. 대화 중 중요한 교환 내용을 나중에 참조할 수 있도록 기록으로 남길 때 사용한다.
+description: Extracts the last user input and Claude's response, saving them to .claude/history/ with a timestamped filename. Used to preserve important conversation exchanges for future reference.
 version: 1.0.0
 ---
 
-# Capture — 대화 내용 저장 스킬
+# Capture — Conversation Save Skill
 
-마지막 입력과 출력 쌍을 **`temp-history/`** 폴더에 별도 문서로 저장하는 스킬입니다.
-중요한 결정, 유용한 설명, 참고할 만한 결과물을 대화 흐름에서 분리해 보관할 때 사용합니다.
-
----
-
-## 이 스킬이 활성화되는 조건
-
-### 수동 호출 전용: `/capture`
-
-자동 활성화 없이 사용자가 명시적으로 호출할 때만 실행됩니다.
+A skill that saves the last input-output pair as a separate document in the **`temp-history/`** folder.
+Use it to preserve important decisions, useful explanations, and noteworthy outputs separately from the conversation flow.
 
 ---
 
-## 저장 절차
+## Activation Conditions
 
-### 1단계: 저장 대상 확인
+### Manual Only: `/capture`
 
-현재 대화에서 **바로 직전 교환** (마지막 사용자 입력 + 그에 대한 Claude의 응답)을 저장 대상으로 합니다.
+Runs only when explicitly invoked by the user. No automatic activation.
 
-`/capture` 호출 자체는 저장 대상에 포함하지 않습니다.
+---
 
-### 2단계: 파일명 생성
+## Save Procedure
 
-현재 시각을 기준으로 파일명을 생성합니다.
+### Step 1: Identify Save Target
 
-**형식**: `YYYY-MM-DD_HH-MM-SS.md`
+From the current conversation, the **immediately preceding exchange** (last user input + Claude's response) is the save target.
 
-예시: `2026-04-01_14-30-05.md`
+The `/capture` invocation itself is not included in the save target.
 
-### 3단계: 저장 경로 및 .gitignore 확인
+### Step 2: Generate Filename
 
-`.claude/history/` 폴더가 없으면 생성합니다.
+Generate the filename based on the current time.
 
-폴더를 처음 생성할 때, 프로젝트에 버전 관리 시스템(.git, .svn 등)이 있는지 확인합니다.
-버전 관리 시스템이 감지되면 **반드시** ignore 파일에 `.claude/history/` 경로를 추가합니다.
+**Format**: `YYYY-MM-DD_HH-MM-SS.md`
 
-| 버전 관리 | ignore 파일 |
-|-----------|-------------|
+Example: `2026-04-01_14-30-05.md`
+
+### Step 3: Verify Save Path and .gitignore
+
+Create the `.claude/history/` folder if it doesn't exist.
+
+When creating the folder for the first time, check if the project has a version control system (.git, .svn, etc.).
+If a VCS is detected, **always** add the `.claude/history/` path to the ignore file.
+
+| VCS | Ignore file |
+|-----|-------------|
 | Git | `.gitignore` |
 | SVN | `.svnignore` |
 | Mercurial | `.hgignore` |
 
-이미 ignore 파일에 등록되어 있으면 중복 추가하지 않습니다.
-ignore 파일이 없으면 새로 생성합니다.
+Do not add duplicate entries if already registered.
+Create the ignore file if it doesn't exist.
 
-### 4단계: 파일 작성 및 저장
+### Step 4: Write and Save File
 
-아래 형식으로 파일을 작성합니다.
+Write the file in the format below.
 
 ---
 
-## 저장 파일 형식
+## Save File Format
 
 ```markdown
 > {YYYY-MM-DD HH:MM:SS}
 
-## 입력
+## Input
 
-{사용자의 마지막 입력 내용 그대로}
+{Last user input exactly as-is}
 
-## 출력
+## Output
 
-{Claude의 응답 내용 그대로}
+{Claude's response exactly as-is}
 ```
 
 ---
 
-## 저장 완료 후 안내 메시지
+## Completion Message
 
 ```
-저장 완료: .claude/history/YYYY-MM-DD_HH-MM-SS.md
+Saved: .claude/history/YYYY-MM-DD_HH-MM-SS.md
 ```
 
-한 줄로만 알립니다. 추가 설명은 하지 않습니다.
+One line only. No additional explanation.
 
 ---
 
-## 중요 원칙
+## Key Principles
 
-- **직전 교환만**: 현재 `/capture` 호출 이전의 마지막 입력-출력 쌍만 저장한다. 그 이전 내용은 포함하지 않는다.
-- **내용 그대로**: 요약하거나 편집하지 않는다. 원문을 그대로 저장한다.
-- **파일명은 타임스탬프**: 내용을 기반으로 파일명을 짓지 않는다. 항상 현재 시각을 사용한다.
-- **조용히 저장**: 저장 완료 경로 한 줄만 출력한다. 내용 요약이나 부가 설명을 덧붙이지 않는다.
-- **history는 배포하지 않는다**: 버전 관리 시스템이 있으면 `.claude/history/`를 반드시 ignore 파일에 등록한다.
+- **Previous exchange only**: Save only the last input-output pair before the `/capture` call. Do not include earlier content.
+- **Verbatim content**: Do not summarize or edit. Save the original text as-is.
+- **Timestamp filenames**: Never base filenames on content. Always use the current time.
+- **Save quietly**: Output only the save path in one line. Do not add content summaries or extra explanations.
+- **Never deploy history**: Always register `.claude/history/` in the ignore file if a VCS exists.

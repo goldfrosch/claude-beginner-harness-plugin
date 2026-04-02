@@ -1,111 +1,111 @@
 ---
 name: scope
-description: 코딩 작업 시작 전에 바이브코딩(AI 자율)으로 진행할지, 사용자와 협업 설계가 필요한지 판단한다. clarify와 preplan 이전에 먼저 실행되어, 불필요한 질문지 없이 바로 진행해도 되는 작업과 신중한 협의가 필요한 작업을 구분한다.
+description: Determines before coding whether to proceed autonomously (vibe-coding) or collaboratively with the user. Runs before clarify and preplan to distinguish tasks that can proceed without questions from those requiring careful discussion.
 version: 1.0.0
 ---
 
-# Scope — 바이브코딩 범위 판단 스킬
+# Scope — Vibe-Coding Scope Assessment Skill
 
-코딩 작업을 시작하기 전에 **"이 작업을 AI가 알아서 해도 되는가, 아니면 사용자와 먼저 논의해야 하는가"를 판단**하는 스킬입니다.
+A skill that **determines "should AI handle this autonomously, or should it discuss with the user first"** before starting a coding task.
 
-모든 작업에 질문지를 들이밀거나, 반대로 모든 작업을 AI가 마음대로 하는 것 모두 좋지 않습니다.
-작업의 성격에 맞는 협업 방식을 선택하는 것이 목표입니다.
-
----
-
-## 두 가지 영역
-
-### 바이브코딩 영역 — AI가 자율적으로 판단하고 진행
-
-다음 조건 중 두 가지 이상에 해당하면 바이브코딩으로 간주합니다:
-
-- **일회성**: 반복 사용되지 않거나, 나중에 재사용될 가능성이 낮은 코드
-- **낮은 중요도**: 잘못 만들어도 되돌리거나 다시 만드는 비용이 낮은 코드
-- **실험/프로토타입**: 아이디어를 빠르게 검증하기 위한 목적이거나 PoC(개념 검증) 단계
-- **독립성**: 기존 프로덕션 코드나 다른 모듈과 연결되지 않는 독립된 코드
-- **비보안**: 인증, 권한, 민감 데이터 처리와 무관한 코드
-
-**바이브코딩 영역 예시**:
-- 단순 마케팅 랜딩 페이지
-- 발표용 데모/목업
-- 개인 사용 목적의 일회성 스크립트
-- 격리된 환경에서의 빠른 실험 코드
-- 프로덕션과 무관한 내부 유틸리티
-
-**바이브코딩일 때 하는 행동**:
-- clarify 질문지를 제시하지 않는다
-- AI가 스스로 기술 스택, 구조, 추상화를 선택한다
-- 완성 후 결과물과 함께 선택 이유를 간략히 설명한다
+Presenting a questionnaire for every task, or conversely having AI do everything on its own, are both suboptimal.
+The goal is to choose the right collaboration approach for the nature of the task.
 
 ---
 
-### 협업 설계 영역 — 사용자와 충분히 논의 후 진행
+## Two Categories
 
-다음 조건 중 하나라도 해당하면 협업 설계가 필요합니다:
+### Vibe-Coding — AI decides and proceeds autonomously
 
-- **프로덕션 배포 예정**: 실제 사용자에게 서비스되거나 운영 환경에 배포되는 코드
-- **보안 관련**: 인증(로그인, 토큰, 세션), 권한 관리, 암호화, 민감 데이터 처리
-- **성능 최적화**: 성능이 중요한 영역의 알고리즘, 캐싱 전략, DB 쿼리 최적화
-- **핵심 추상화**: 다른 코드들이 이 코드를 기반으로 작성되는 공통 인터페이스, 베이스 클래스, 유틸
-- **데이터 모델 변경**: DB 스키마, 마이그레이션, 데이터 구조의 변경
-- **외부 연동**: 외부 API, 결제 시스템, 서드파티 서비스 연동
-- **복구 비용이 큰 작업**: 잘못됐을 때 롤백하거나 수정하는 비용이 큰 작업
+If two or more of the following conditions apply, classify as vibe-coding:
 
-**협업 설계 영역 예시**:
-- 회원가입/로그인 기능
-- 결제 처리 로직
-- 공통으로 사용되는 API 클라이언트 래퍼
-- DB 테이블 구조 변경
-- 성능 문제가 있는 쿼리 최적화
+- **One-off**: Code that won't be reused or has low reuse potential
+- **Low importance**: Code where the cost of reverting or rebuilding is low
+- **Experiment/prototype**: Purpose is rapid idea validation or PoC (proof of concept)
+- **Independence**: Standalone code not connected to production code or other modules
+- **Non-security**: Code unrelated to authentication, authorization, or sensitive data handling
 
-**협업 설계일 때 하는 행동**:
-- 먼저 scope 판단 결과를 사용자에게 알린다
-- clarify 스킬을 통해 요구사항을 구체화한다
-- 필요 시 preplan 스킬을 통해 설계 방향을 합의한다
-- AI가 추상화나 구조를 임의로 선택하지 않는다
+**Vibe-coding examples**:
+- Simple marketing landing page
+- Presentation demo/mockup
+- One-off script for personal use
+- Quick experimental code in an isolated environment
+- Internal utility unrelated to production
 
----
-
-## 판단 방법
-
-요청을 받으면 다음 순서로 판단합니다:
-
-1. **협업 설계 조건 먼저 확인**: 위 협업 설계 조건 중 하나라도 해당하면 즉시 협업 설계로 분류
-2. **바이브코딩 조건 확인**: 협업 설계 조건에 해당하지 않고 바이브코딩 조건 두 가지 이상 해당하면 바이브코딩으로 분류
-3. **판단 불가 시 사용자에게 확인**: 어느 쪽인지 불명확할 때는 짧게 물어본다
+**Vibe-coding behavior**:
+- Do not present a clarify questionnaire
+- AI chooses tech stack, structure, and abstractions on its own
+- After completion, briefly explain the choices alongside the result
 
 ---
 
-## 판단이 애매한 경우 — 확인 메시지 형식
+### Collaborative Design — Proceed after thorough discussion with the user
+
+If any of the following conditions apply, collaborative design is required:
+
+- **Production deployment**: Code that will serve real users or be deployed to production environments
+- **Security-related**: Authentication (login, tokens, sessions), authorization, encryption, sensitive data handling
+- **Performance optimization**: Algorithms, caching strategies, DB query optimization in performance-critical areas
+- **Core abstractions**: Shared interfaces, base classes, utilities that other code depends on
+- **Data model changes**: DB schema, migrations, data structure changes
+- **External integrations**: External APIs, payment systems, third-party service integrations
+- **High recovery cost**: Tasks where rollback or correction costs are high if something goes wrong
+
+**Collaborative design examples**:
+- Sign-up/login functionality
+- Payment processing logic
+- Shared API client wrapper
+- DB table structure changes
+- Query optimization for performance issues
+
+**Collaborative design behavior**:
+- First inform the user of the scope assessment result
+- Clarify requirements through the clarify skill
+- If needed, align on design direction through the preplan skill
+- AI does not arbitrarily choose abstractions or structure
+
+---
+
+## Assessment Method
+
+When a request is received, assess in this order:
+
+1. **Check collaborative design conditions first**: If any collaborative design condition applies, immediately classify as collaborative design
+2. **Check vibe-coding conditions**: If no collaborative design conditions apply and two or more vibe-coding conditions are met, classify as vibe-coding
+3. **When unclear, confirm with the user**: If neither category is clear, ask briefly
+
+---
+
+## Confirmation Message for Ambiguous Cases
 
 ```
-이 작업이 어떤 목적으로 사용될지에 따라 접근 방식이 달라집니다.
+The approach differs depending on the purpose of this task.
 
-아래 중 해당하는 것을 알려주세요:
-- 빠르게 실험하거나 데모용으로 만드는 건가요? (바이브코딩으로 진행)
-- 실제 서비스/프로덕션에 배포될 코드인가요? (요구사항 정리 후 진행)
-```
-
----
-
-## 바이브코딩 완료 후 설명 형식
-
-바이브코딩으로 작업을 완료했을 때 결과물과 함께 아래를 간략히 설명합니다:
-
-```
-[코드/결과물]
-
----
-**선택한 방식**: [기술 스택, 구조, 주요 결정]
-**이유**: [왜 이렇게 선택했는지 한두 줄]
-**주의**: 이 코드는 [실험/데모/일회성] 목적으로 작성되었습니다. 프로덕션 사용 시 [보안 검토 / 에러 처리 추가 / 성능 검토] 가 필요합니다.
+Please let me know which applies:
+- Is this for quick experimentation or a demo? (Proceed with vibe-coding)
+- Is this code for a real service/production? (Proceed after clarifying requirements)
 ```
 
 ---
 
-## 중요 원칙
+## Post Vibe-Coding Completion Format
 
-- **협업 설계 조건이 하나라도 있으면 바이브코딩 금지**: 빠른 진행보다 올바른 방향이 중요하다.
-- **바이브코딩에서도 결과는 투명하게**: AI가 선택한 것을 숨기지 않고 설명한다.
-- **모호하면 물어본다**: 판단이 어려울 때 추측으로 진행하지 않는다.
-- **바이브코딩 결과물의 한계를 명시한다**: 프로덕션 투입 전 검토가 필요한 부분을 항상 알린다.
+When work is completed via vibe-coding, briefly explain the following alongside the result:
+
+```
+[Code/result]
+
+---
+**Approach chosen**: [Tech stack, structure, key decisions]
+**Reasoning**: [Why this approach was chosen, in one or two lines]
+**Note**: This code was written for [experiment/demo/one-off] purposes. For production use, [security review / error handling / performance review] is needed.
+```
+
+---
+
+## Key Principles
+
+- **No vibe-coding if any collaborative design condition exists**: The right direction matters more than fast progress.
+- **Transparency even in vibe-coding**: Don't hide AI's choices — explain them.
+- **Ask when ambiguous**: Don't proceed on guesses when the assessment is unclear.
+- **State the limitations of vibe-coded results**: Always note what needs review before production deployment.
