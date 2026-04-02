@@ -1,6 +1,7 @@
-**[English](README.md)** | [한국어](README_KR.md)
-
 # claude-beginner-harness-plugin
+
+<p align="center"><img src="Thumbnail.png" width="300"></p>
+<p align="center"><font size="4"><strong><a href="README.md">English</a></strong> | <a href="README_KR.md">한국어</a></font></p>
 
 A harness plugin that helps people who are new to or unfamiliar with Claude Code **build good habits**.
 
@@ -55,34 +56,34 @@ Implementation
 
 Checks that the project environment is properly set up before starting work.
 
-| Item | Description |
-|------|-------------|
-| Role | Check CLAUDE.md existence and assess git worktree isolation needs |
-| Auto-activation | When CLAUDE.md is missing or large-scale changes are expected |
-| Manual invocation | `/setup` |
-| Managed skills | `init`, `worktree` |
+| Item              | Description                                                       |
+| ----------------- | ----------------------------------------------------------------- |
+| Role              | Check CLAUDE.md existence and assess git worktree isolation needs |
+| Auto-activation   | When CLAUDE.md is missing or large-scale changes are expected     |
+| Manual invocation | `/setup`                                                          |
+| Managed skills    | `init`, `worktree`                                                |
 
 ### Design Agent — Task Design Agent
 
 Sets the right direction before starting coding work. Prevents the impulse to "just start building" and ensures alignment on what to build and how.
 
-| Item | Description |
-|------|-------------|
-| Role | Vibe coding assessment, requirement clarification, plan mode recommendation |
-| Auto-activation | On all coding task requests |
-| Manual invocation | `/design` |
-| Managed skills | `scope`, `clarify`, `preplan` |
+| Item              | Description                                                                 |
+| ----------------- | --------------------------------------------------------------------------- |
+| Role              | Vibe coding assessment, requirement clarification, plan mode recommendation |
+| Auto-activation   | On all coding task requests                                                 |
+| Manual invocation | `/design`                                                                   |
+| Managed skills    | `scope`, `clarify`, `preplan`                                               |
 
 ### Session Agent — Session Management Agent
 
 Manages context and workflow continuity throughout the conversation. Prevents the issue of "Claude forgetting earlier context as the conversation grows longer."
 
-| Item | Description |
-|------|-------------|
-| Role | Context handoff, conversation saving, INPUT.md processing |
-| Auto-activation | When context usage is estimated at 50% or more |
-| Manual invocation | `/handoff`, `/capture`, `/input` |
-| Managed skills | `handoff`, `capture`, `input` |
+| Item              | Description                                               |
+| ----------------- | --------------------------------------------------------- |
+| Role              | Context handoff, conversation saving, INPUT.md processing |
+| Auto-activation   | When context usage is estimated at 50% or more            |
+| Manual invocation | `/handoff`, `/capture`, `/input`                          |
+| Managed skills    | `handoff`, `capture`, `input`                             |
 
 ## Skills
 
