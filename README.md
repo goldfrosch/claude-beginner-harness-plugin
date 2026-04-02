@@ -2,6 +2,13 @@
 
 A harness plugin that helps people who are new to or unfamiliar with Claude Code **build good habits**.
 
+## Installation
+
+```bash
+/plugin marketplace add GoldFrosch/claude-beginner-harness-plugin
+/plugin install claude-beginner-harness-plugin@beginner-harness
+```
+
 Built with reference to the [Vibe Coding Guide](https://drive.google.com/file/d/1x2x1T4lzTISnHGN8nd4KtMhL8iwi6QgU/view), this plugin lets Claude automatically catch habits that are hard to develop on your own when first starting vibe coding.
 
 Even if token usage or work time increases somewhat, the priority is learning the right patterns for collaborating with Claude from the start.
