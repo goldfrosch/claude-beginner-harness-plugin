@@ -1,7 +1,7 @@
 ---
 name: clarify
 description: Must be used when task requirements are ambiguous or AI would need to make assumptions. When the user requests new features, code, bug fixes, refactoring, or design — especially with vague scope or purpose — do not start coding immediately; use this skill to clarify requirements first. Exception: vibe-coding tasks (one-off/experimental/demo) proceed autonomously without a questionnaire.
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Clarify — Requirements Clarification Skill
@@ -58,9 +58,63 @@ options:
 
 ---
 
+## Step 1: Reference Exploration (Always Runs Before Questionnaire)
+
+Before presenting any questions, identify whether a well-known reference exists for this type of request.
+
+### How to run
+
+1. **Identify the domain** from the request (game mechanics, payment flow, notification system, auth, etc.)
+2. **Find 2–3 well-known analogues** — services, games, tools, or patterns widely recognized in that domain
+3. **Present them as options** via `AskUserQuestion`, with a brief note on the behavioral contract each implies
+4. **Ask for the closest match**
+
+### Example call structure
+
+```
+AskUserQuestion(
+  questions: [
+    {
+      question: "어떤 방식에 가장 가깝나요?",
+      header: "레퍼런스",
+      multiSelect: false,
+      options: [
+        {
+          label: "Civilization (hex grid)",
+          description: "균일 이동 비용, 6방향, 시야가 육각형 반경으로 계산"
+        },
+        {
+          label: "XCOM",
+          description: "이동력 소모, 엄폐 개념, 지형이 이동에 영향"
+        },
+        {
+          label: "Into the Breach",
+          description: "턴제, 밀기/당기기 상호작용 중심, 예측 가능한 AI"
+        },
+        {
+          label: "위 항목과 다릅니다 — 직접 설명할게요"
+        }
+      ]
+    }
+  ]
+)
+```
+
+### After selection
+
+- If a reference is chosen: ask one follow-up question — **"이 방식과 다르게 처리하고 싶은 부분이 있나요?"**
+- If "직접 설명할게요" is chosen: proceed to the questionnaire below as usual
+- If no good analogue exists (truly novel feature): skip this step and proceed to the questionnaire
+
+### Why this works
+
+A reference carries an implicit contract — behavioral assumptions both parties share without needing to enumerate them. The delta question then surfaces only what diverges. This converts unknown unknowns into known ones without requiring the user to read documentation.
+
+---
+
 ## Activation Conditions
 
-After **scope determines this is a collaborative design task**, if any of the following apply, **stop coding immediately and present the questionnaire**:
+After **scope determines this is a collaborative design task**, if any of the following apply, **stop coding immediately and run Reference Exploration, then present the questionnaire for remaining unclear points**:
 
 - The request lacks specific behavior, I/O, or scope definitions
 - Subjective expressions like "nice", "clean", "improve", "optimize" are included
@@ -148,11 +202,13 @@ Use the `AskUserQuestion` tool to present questions interactively — **not as a
 - If more than 4 questions are needed, make a second `AskUserQuestion` call after the first is answered.
 
 ### Workflow
-1. Select **only the unclear items** from the categories above.
-2. Call `AskUserQuestion` with those questions in interactive form.
-3. After the user responds, check if any additional clarification is needed (call again if so).
-4. Once requirements are sufficiently specific, **write a summary and get confirmation**.
-5. Start coding only after confirmation is received.
+1. **Run Reference Exploration first** (Step 1 above).
+2. If a reference was chosen, the delta question covers much of the ambiguity — **skip questionnaire categories already resolved by the reference**.
+3. Select **only the still-unclear items** from the categories above.
+4. Call `AskUserQuestion` with those questions in interactive form.
+5. After the user responds, check if any additional clarification is needed (call again if so).
+6. Once requirements are sufficiently specific, **write a summary and get confirmation**.
+7. Start coding only after confirmation is received.
 
 ### Example call structure
 ```
@@ -192,6 +248,8 @@ After the Q&A is complete, summarize in the format below and get user confirmati
 ```
 ## Requirements Summary
 
+**Reference**: [Chosen reference, or "없음" if none selected]
+**Key differences from reference**: [What diverges from the reference — omit if no reference]
 **Purpose**: [The problem this task solves]
 **Deliverable**: [What needs to be built]
 **Input**: [Incoming values]
@@ -209,6 +267,8 @@ Start work once the user confirms.
 
 ## Key Principles
 
+- **Reference first**: Always try to find a shared reference before asking abstract questions. A reference carries an implicit contract worth more than a dozen clarifying questions.
+- **Delta over description**: After a reference is chosen, ask only what differs — not a full description of expected behavior.
 - **Don't assume**: Always ask about unclear points. Building on guesses means rebuilding later.
 - **Ask all at once**: Don't split questions across multiple exchanges. Present them together.
 - **Ask only what's relevant**: Not every category needs to be covered. Focus on unclear areas.

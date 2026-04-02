@@ -109,12 +109,14 @@ Before starting a coding task, determines whether the AI can proceed autonomousl
 
 ### `clarify` — Requirement Clarification
 
-When a task request is ambiguous, instead of jumping into code immediately, clarifies requirements through a questionnaire first. Only applies to tasks identified as collaborative design zone.
+When a task request is ambiguous, instead of jumping into code immediately, clarifies requirements first. Only applies to tasks identified as collaborative design zone.
 
 - **Auto-activation**: When scope assessment indicates collaborative design and purpose/scope/I-O are unclear
 - **Manual invocation**: `/clarify`
 
-Focuses questions on unclear areas among 7 categories: purpose and background, input and output, scope and boundaries, technical constraints, relationship with existing code, edge cases, and completion criteria.
+Before presenting any questionnaire, runs **Reference Exploration** first. AI identifies the request domain and presents well-known services, games, or tools as candidate references. Once a reference is selected, a single delta question — "Is there anything you'd like to handle differently from this?" — establishes a shared implicit contract. Only remaining unclear points are covered by follow-up questions.
+
+**Reference-based alignment**: Instead of abstract descriptions, aligning on a shared reference lets both parties share the same behavioral assumptions without needing to enumerate them explicitly.
 
 ### `preplan` — Pre-work Preparation
 
