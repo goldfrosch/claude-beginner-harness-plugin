@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-beginner-harness",
+  "description": "Claude Code 초보자를 위한 하네스 플러그인 - 좋은 습관 형성을 돕는 스킬과 에이전트 모음",
+  "owner": {
+    "name": "GoldFrosch"
+  },
+  "plugins": [
+    {
+      "name": "claude-beginner-harness-plugin",
+      "description": "use claude easier for beginner",
+      "source": "..",
+      "category": "development"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat /c/Users/user/.claude/plugins/marketplaces/claude-plugins-official/.claude-plugin/*.json)"
+    ]
+  }
+}

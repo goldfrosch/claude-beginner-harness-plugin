@@ -43,13 +43,17 @@ If any of the following apply, the questionnaire is mandatory:
 
 ### If Unclear
 
-Ask briefly:
+Use the `AskUserQuestion` tool with a single-select question:
 
 ```
-The approach differs depending on the purpose of this code.
-
-- Is this for quick experimentation or a demo? (Proceed with vibe-coding)
-- Is this code that will be deployed to production? (Proceed after clarifying requirements)
+question: "The approach differs depending on the purpose of this code. Which applies?"
+header: "Code purpose"
+multiSelect: false
+options:
+  - label: "Experiment / Demo"
+    description: "Quick experimentation or demo — proceed with vibe-coding autonomously"
+  - label: "Production"
+    description: "Code that will be deployed to production — clarify requirements first"
 ```
 
 ---
@@ -133,11 +137,51 @@ Not all questions need to be asked. Focus on the unclear parts.
 
 ## How to Present the Questionnaire
 
-1. Select **items that are unclear for the current request** from the categories above.
-2. Present the questions as a numbered list all at once.
-3. After the user responds, check if any additional clarification is needed.
+Use the `AskUserQuestion` tool to present questions interactively — **not as a plain text list**.
+
+### Rules
+- Present **1–4 questions per `AskUserQuestion` call** (tool limit).
+- Group related questions together in a single call.
+- Use **`multiSelect: false`** (radio) for mutually exclusive choices.
+- Use **`multiSelect: true`** (checkbox) for "select all that apply" choices.
+- Each question must have **2–4 options** — add an "Other" option only when truly open-ended (the tool appends it automatically).
+- If more than 4 questions are needed, make a second `AskUserQuestion` call after the first is answered.
+
+### Workflow
+1. Select **only the unclear items** from the categories above.
+2. Call `AskUserQuestion` with those questions in interactive form.
+3. After the user responds, check if any additional clarification is needed (call again if so).
 4. Once requirements are sufficiently specific, **write a summary and get confirmation**.
 5. Start coding only after confirmation is received.
+
+### Example call structure
+```
+AskUserQuestion(
+  questions: [
+    {
+      question: "Who will use this feature?",
+      header: "Target user",
+      multiSelect: false,
+      options: [
+        { label: "End users", description: "External users of the product" },
+        { label: "Developers", description: "Internal developer tooling" },
+        { label: "Internal systems", description: "Backend services or automation" }
+      ]
+    },
+    {
+      question: "Which technical constraints apply?",
+      header: "Constraints",
+      multiSelect: true,
+      options: [
+        { label: "Must use existing framework", description: "Cannot introduce new dependencies" },
+        { label: "Performance-critical", description: "Hot path or high-frequency execution" },
+        { label: "Security-sensitive", description: "Handles auth, encryption, or sensitive data" },
+        { label: "No special constraints", description: "Standard implementation is fine" }
+      ]
+    }
+  ]
+)
+```
 
 ---
 
