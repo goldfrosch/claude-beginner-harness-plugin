@@ -6,7 +6,7 @@
   },
   "plugins": [
     {
-      "name": "Claude Beginner Harness Plugin",
+      "name": "claude-beginner-harness-plugin",
       "description": "use claude easier for beginner",
       "source": "github:goldfrosch/claude-beginner-harness-plugin",
       "category": "development"
