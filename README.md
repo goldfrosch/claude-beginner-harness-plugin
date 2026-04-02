@@ -1,3 +1,5 @@
+**[English](README.md)** | [한국어](README_KR.md)
+
 # claude-beginner-harness-plugin
 
 A harness plugin that helps people who are new to or unfamiliar with Claude Code **build good habits**.

@@ -1,6 +1,15 @@
+[English](README.md) | **[한국어](README_KR.md)**
+
 # claude-beginner-harness-plugin
 
 Claude Code를 처음 사용하거나 익숙하지 않은 사람들이 **좋은 습관을 만들어가도록 돕는 하네스 플러그인**입니다.
+
+## 설치 방법
+
+```bash
+/plugin marketplace add GoldFrosch/claude-beginner-harness-plugin
+/plugin install claude-beginner-harness-plugin@beginner-harness
+```
 
 [바이브 코딩 가이드](https://drive.google.com/file/d/1x2x1T4lzTISnHGN8nd4KtMhL8iwi6QgU/view)를 참조하면서, 바이브 코딩을 처음 시작할 때 혼자서는 잡기 어려웠던 습관들을 Claude가 자동으로 잡아줄 수 있도록 만든 플러그인입니다.
 
