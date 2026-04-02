@@ -1,174 +1,176 @@
 # claude-beginner-harness-plugin
 
-Claude Code를 처음 사용하거나 익숙하지 않은 사람들이 **좋은 습관을 만들어가도록 돕는 하네스 플러그인**입니다.
+A harness plugin that helps people who are new to or unfamiliar with Claude Code **build good habits**.
 
-토큰 사용량이나 작업 시간이 다소 늘어나더라도, 처음부터 올바른 방식으로 Claude와 협업하는 패턴을 익히는 것을 우선합니다.
+Built with reference to the [Vibe Coding Guide](https://drive.google.com/file/d/1x2x1T4lzTISnHGN8nd4KtMhL8iwi6QgU/view), this plugin lets Claude automatically catch habits that are hard to develop on your own when first starting vibe coding.
 
-## 핵심 철학
+Even if token usage or work time increases somewhat, the priority is learning the right patterns for collaborating with Claude from the start.
 
-- **속도보다 습관**: 빠르게 결과를 얻는 것보다, 올바른 과정을 반복해서 몸에 익히는 것이 중요합니다.
-- **추측하지 않기**: 불명확한 요구사항으로 작업을 시작하면 방향이 틀린 결과가 나옵니다. 먼저 충분히 이해하고 작업을 시작합니다.
-- **초보자 친화적**: Claude Code의 기능을 잘 모르는 사람도 좋은 결과를 낼 수 있도록 안내합니다.
+## Core Philosophy
 
-## 작동 방식
+- **Habits over speed**: It's more important to internalize the right process through repetition than to get quick results.
+- **Don't guess**: Starting work with unclear requirements leads to misguided results. Understand thoroughly before starting.
+- **Beginner-friendly**: Guides users to achieve good results even if they're unfamiliar with Claude Code's features.
 
-이 플러그인은 **3개의 에이전트**가 **8개의 스킬**을 조율하여 작동합니다. 각 에이전트는 특정 역할을 담당하며, 상황에 따라 자동으로 활성화되거나 수동으로 호출할 수 있습니다.
+## How It Works
+
+This plugin operates through **3 agents** coordinating **8 skills**. Each agent handles a specific role and can be activated automatically or invoked manually depending on the situation.
 
 ```
-코딩 작업 요청
-      │
-      ▼
-[setup-agent] 환경 준비
-  ├── init: CLAUDE.md 존재 확인 및 생성
-  └── worktree: 격리 개발 환경 필요성 판단
-      │
-      ▼
-[design-agent] 작업 설계
-  ├── scope: 바이브코딩 vs 협업 설계 판단
-  ├── clarify: 요구사항 구체화 (협업 설계 영역)
-  └── preplan: 복잡한 작업 계획 모드 권유
-      │
-      ▼
-구현 진행
-      │
-      ▼
-[session-agent] 세션 관리 (지속적)
-  ├── handoff: 컨텍스트 인계 문서 작성
-  ├── capture: 대화 내용 저장
-  └── input: INPUT.md 읽기 및 처리
+Coding task request
+      |
+      v
+[setup-agent] Environment Preparation
+  |-- init: Check and create CLAUDE.md
+  +-- worktree: Assess need for isolated dev environment
+      |
+      v
+[design-agent] Task Design
+  |-- scope: Vibe coding vs collaborative design decision
+  |-- clarify: Requirement clarification (collaborative design)
+  +-- preplan: Suggest plan mode for complex tasks
+      |
+      v
+Implementation
+      |
+      v
+[session-agent] Session Management (continuous)
+  |-- handoff: Write context handoff document
+  |-- capture: Save conversation content
+  +-- input: Read and process INPUT.md
 ```
 
-## 에이전트
+## Agents
 
-### Setup Agent — 환경 준비 에이전트
+### Setup Agent — Environment Preparation Agent
 
-작업을 시작하기 전에 프로젝트 환경이 올바르게 준비되어 있는지 점검합니다.
+Checks that the project environment is properly set up before starting work.
 
-| 항목 | 설명 |
-|------|------|
-| 역할 | CLAUDE.md 존재 여부 확인 및 git worktree 격리 필요성 판단 |
-| 자동 활성화 | 프로젝트에 CLAUDE.md가 없거나, 대규모 변경이 예상될 때 |
-| 수동 호출 | `/setup` |
-| 관리 스킬 | `init`, `worktree` |
+| Item | Description |
+|------|-------------|
+| Role | Check CLAUDE.md existence and assess git worktree isolation needs |
+| Auto-activation | When CLAUDE.md is missing or large-scale changes are expected |
+| Manual invocation | `/setup` |
+| Managed skills | `init`, `worktree` |
 
-### Design Agent — 작업 설계 에이전트
+### Design Agent — Task Design Agent
 
-코딩 작업을 시작하기 전에 올바른 방향을 잡습니다. "일단 만들어보자"는 충동을 막고, 무엇을 어떻게 만들지 먼저 합의합니다.
+Sets the right direction before starting coding work. Prevents the impulse to "just start building" and ensures alignment on what to build and how.
 
-| 항목 | 설명 |
-|------|------|
-| 역할 | 바이브코딩 여부 판단, 요구사항 구체화, 계획 모드 권유 |
-| 자동 활성화 | 모든 코딩 작업 요청 시 |
-| 수동 호출 | `/design` |
-| 관리 스킬 | `scope`, `clarify`, `preplan` |
+| Item | Description |
+|------|-------------|
+| Role | Vibe coding assessment, requirement clarification, plan mode recommendation |
+| Auto-activation | On all coding task requests |
+| Manual invocation | `/design` |
+| Managed skills | `scope`, `clarify`, `preplan` |
 
-### Session Agent — 세션 관리 에이전트
+### Session Agent — Session Management Agent
 
-대화가 진행되는 동안 컨텍스트와 작업 흐름이 끊기지 않도록 관리합니다. "대화가 길어지면서 Claude가 앞 내용을 잊어버리는" 문제를 방지합니다.
+Manages context and workflow continuity throughout the conversation. Prevents the issue of "Claude forgetting earlier context as the conversation grows longer."
 
-| 항목 | 설명 |
-|------|------|
-| 역할 | 컨텍스트 인계, 대화 저장, INPUT.md 처리 |
-| 자동 활성화 | 컨텍스트 사용량 50% 이상 추정 시 |
-| 수동 호출 | `/handoff`, `/capture`, `/input` |
-| 관리 스킬 | `handoff`, `capture`, `input` |
+| Item | Description |
+|------|-------------|
+| Role | Context handoff, conversation saving, INPUT.md processing |
+| Auto-activation | When context usage is estimated at 50% or more |
+| Manual invocation | `/handoff`, `/capture`, `/input` |
+| Managed skills | `handoff`, `capture`, `input` |
 
-## 스킬
+## Skills
 
-### `init` — CLAUDE.md 초기화
+### `init` — CLAUDE.md Initialization
 
-프로젝트 루트에 CLAUDE.md가 없을 때, 어떤 작업보다 먼저 CLAUDE.md 생성을 최우선으로 처리합니다.
+When CLAUDE.md doesn't exist in the project root, creating it takes top priority before any other work.
 
-- **자동 활성화**: 코딩 작업 요청 시 프로젝트 루트에 CLAUDE.md가 없는 경우
-- **수동 호출**: `/init`
+- **Auto-activation**: When CLAUDE.md is missing at the project root during a coding task request
+- **Manual invocation**: `/init`
 
-CLAUDE.md에는 프로젝트 개요를 간략히 담고, 세부 규칙은 `.claude` 폴더 문서를 참조하도록 작성합니다.
+CLAUDE.md contains a brief project overview, with detailed rules referencing documents in the `.claude` folder.
 
-### `scope` — 바이브코딩 범위 판단
+### `scope` — Vibe Coding Scope Assessment
 
-코딩 작업 시작 전에 AI가 자율적으로 진행해도 되는 작업인지, 사용자와 협업 설계가 필요한 작업인지 판단합니다.
+Before starting a coding task, determines whether the AI can proceed autonomously or needs collaborative design with the user.
 
-- **자동 활성화**: 모든 코딩 작업 요청 시
-- **수동 호출**: `/scope`
+- **Auto-activation**: On all coding task requests
+- **Manual invocation**: `/scope`
 
-**바이브코딩 영역** (AI 자율 진행): 일회성 페이지, 실험/프로토타입, 데모, 중요도 낮은 독립 코드
+**Vibe coding zone** (AI autonomous): One-off pages, experiments/prototypes, demos, low-importance standalone code
 
-**협업 설계 영역** (사용자와 협의): 프로덕션 코드, 보안 관련, 성능 최적화, 핵심 추상화, 데이터 모델 변경
+**Collaborative design zone** (discuss with user): Production code, security-related, performance optimization, core abstractions, data model changes
 
-### `clarify` — 요구사항 구체화
+### `clarify` — Requirement Clarification
 
-작업 요청이 모호할 때 즉시 코드 작업을 시작하는 대신, 질문지를 통해 요구사항을 먼저 구체화합니다. 협업 설계 영역으로 판단된 작업에만 적용됩니다.
+When a task request is ambiguous, instead of jumping into code immediately, clarifies requirements through a questionnaire first. Only applies to tasks identified as collaborative design zone.
 
-- **자동 활성화**: scope 판단 결과 협업 설계 영역이고, 목적/범위/입출력이 불명확한 경우
-- **수동 호출**: `/clarify`
+- **Auto-activation**: When scope assessment indicates collaborative design and purpose/scope/I-O are unclear
+- **Manual invocation**: `/clarify`
 
-7가지 질문 카테고리(목적과 배경, 입력과 출력, 범위와 경계, 기술 조건, 기존 코드와의 관계, 엣지 케이스, 완료 기준) 중 불명확한 부분에 집중하여 질문합니다.
+Focuses questions on unclear areas among 7 categories: purpose and background, input and output, scope and boundaries, technical constraints, relationship with existing code, edge cases, and completion criteria.
 
-### `preplan` — 작업 시작 전 준비
+### `preplan` — Pre-work Preparation
 
-컨텍스트가 없는 상태에서 복잡한 작업을 시작하기 전, 도메인 용어를 정립하고 필요 시 계획 모드 진입을 권유합니다.
+Before starting complex work without context, establishes domain terminology and recommends entering plan mode when necessary.
 
-- **자동 활성화**: 초기 컨텍스트 없이 복잡한 작업 요청 시
-- **수동 호출**: `/preplan`
+- **Auto-activation**: When complex work is requested without initial context
+- **Manual invocation**: `/preplan`
 
-계획 모드 권유 조건: 여러 파일/모듈에 걸친 변경, 기존 모듈 연동 신규 기능, 리팩토링, 아키텍처 변경, 복구 비용이 큰 작업
+Plan mode recommendation criteria: Changes spanning multiple files/modules, new features integrating with existing modules, refactoring, architecture changes, tasks with high recovery costs.
 
-### `input` — INPUT.md 읽기
+### `input` — Read INPUT.md
 
-프로젝트 루트의 `INPUT.md`를 읽고 그 내용에 대해 응답합니다. 대화창에 직접 입력하기 어려운 긴 내용을 파일로 전달할 때 사용합니다.
+Reads `INPUT.md` from the project root and responds to its contents. Used to pass long content that's difficult to type directly in the chat.
 
-- **수동 호출**: `/input`
+- **Manual invocation**: `/input`
 
-INPUT.md는 버전 관리 시스템 ignore 파일에 자동 등록됩니다.
+INPUT.md is automatically registered in the version control system's ignore file.
 
-### `capture` — 대화 내용 저장
+### `capture` — Save Conversation Content
 
-마지막 사용자 입력과 Claude의 응답을 `.claude/history/`에 타임스탬프 파일명으로 저장합니다.
+Saves the last user input and Claude's response to `.claude/history/` with a timestamped filename.
 
-- **수동 호출**: `/capture`
+- **Manual invocation**: `/capture`
 
-### `worktree` — Git Worktree 격리 개발
+### `worktree` — Git Worktree Isolated Development
 
-기능 규모가 크거나 이전 작업과 완전히 다른 작업을 시작할 때 git worktree 생성을 권고합니다.
+Recommends creating a git worktree when starting large features or work completely different from previous tasks.
 
-- **자동 활성화**: 변경 파일이 많은 경우, 핵심 공통 모듈 수정, 이전 작업과 무관한 새 기능 시작 시
-- **수동 호출**: `/worktree`
-- **MCP 연동**: `EnterWorktree` 도구가 있으면 사용자 승인 후 즉시 worktree 생성
+- **Auto-activation**: When many files are being changed, modifying core shared modules, or starting a new feature unrelated to previous work
+- **Manual invocation**: `/worktree`
+- **MCP integration**: If the `EnterWorktree` tool is available, creates a worktree immediately upon user approval
 
-### `handoff` — 컨텍스트 관리 및 인계
+### `handoff` — Context Management and Handoff
 
-대화가 길어져 컨텍스트가 50% 이상 채워졌을 때, 작업 흐름을 끊지 않고 컨텍스트를 초기화할 수 있도록 HANDOFF.md 인계 문서를 작성합니다.
+When the conversation grows long and context reaches 50% or more capacity, writes a HANDOFF.md handoff document to allow context reset without breaking the workflow.
 
-- **자동 활성화**: 컨텍스트 사용량이 50% 이상으로 추정될 때
-- **수동 호출**: `/handoff`
+- **Auto-activation**: When context usage is estimated at 50% or more
+- **Manual invocation**: `/handoff`
 
-## 프로젝트 구조
+## Project Structure
 
 ```
 claude-beginner-harness-plugin/
-├── .claude-plugin/
-│   └── plugin.json          # 플러그인 설정 (v1.1.0)
-├── agents/
-│   ├── setup/AGENT.md       # 환경 준비 에이전트
-│   ├── design/AGENT.md      # 작업 설계 에이전트
-│   └── session/AGENT.md     # 세션 관리 에이전트
-├── skills/
-│   ├── init/SKILL.md        # CLAUDE.md 초기화
-│   ├── scope/SKILL.md       # 바이브코딩 범위 판단
-│   ├── clarify/SKILL.md     # 요구사항 구체화
-│   ├── preplan/SKILL.md     # 작업 시작 전 준비
-│   ├── input/SKILL.md       # INPUT.md 읽기
-│   ├── capture/SKILL.md     # 대화 내용 저장
-│   ├── worktree/SKILL.md    # Git Worktree 격리 개발
-│   └── handoff/SKILL.md     # 컨텍스트 관리 및 인계
-├── CLAUDE.md                # 플러그인 지침 문서
-└── README.md
+|-- .claude-plugin/
+|   +-- plugin.json          # Plugin configuration (v1.1.0)
+|-- agents/
+|   |-- setup/AGENT.md       # Environment preparation agent
+|   |-- design/AGENT.md      # Task design agent
+|   +-- session/AGENT.md     # Session management agent
+|-- skills/
+|   |-- init/SKILL.md        # CLAUDE.md initialization
+|   |-- scope/SKILL.md       # Vibe coding scope assessment
+|   |-- clarify/SKILL.md     # Requirement clarification
+|   |-- preplan/SKILL.md     # Pre-work preparation
+|   |-- input/SKILL.md       # Read INPUT.md
+|   |-- capture/SKILL.md     # Save conversation content
+|   |-- worktree/SKILL.md    # Git worktree isolated development
+|   +-- handoff/SKILL.md     # Context management and handoff
+|-- CLAUDE.md                # Plugin instruction document
++-- README.md
 ```
 
-## 개발 원칙
+## Development Principles
 
-이 플러그인에 새로운 스킬이나 기능을 추가할 때는 아래 기준을 따릅니다:
+When adding new skills or features to this plugin, follow these criteria:
 
-1. 초보자가 자주 겪는 실수나 비효율적인 패턴을 해결하는가?
-2. 단순히 편의를 제공하는 것이 아니라, 좋은 습관 형성에 기여하는가?
-3. 작업 결과보다 작업 과정을 개선하는가?
+1. Does it solve a mistake or inefficient pattern that beginners frequently encounter?
+2. Does it contribute to building good habits, not just providing convenience?
+3. Does it improve the work process rather than the work output?
