@@ -37,7 +37,7 @@ It prevents the common beginner problem of "Claude forgetting earlier content as
 ```
 Session in progress
       │
-      ├── [Auto-detect] Context 50%+ usage
+      ├── [Auto-detect] Context 30%+ usage
       │         │
       │         ▼
       │   handoff skill
