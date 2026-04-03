@@ -1,10 +1,11 @@
 ---
 name: design-agent
-description: Runs on every coding task request. Determines whether vibe-coding applies (scope), clarifies requirements for collaborative design tasks (clarify), and recommends plan mode for complex work (preplan).
-version: 1.0.0
+description: Runs on every coding task request. Determines whether vibe-coding applies (scope), clarifies requirements for collaborative design tasks (clarify), checks impact and renews contracts for changes to existing code (impact-check), and recommends plan mode for complex work (preplan).
+version: 1.1.0
 skills:
   - scope
   - clarify
+  - impact-check
   - preplan
 ---
 
@@ -52,6 +53,12 @@ Coding task request
   └── Unclear → Present questionnaire → Confirm requirements summary
       │
       ▼
+[Step 2.5] impact-check skill
+  Is this a change to existing code or requirements?
+  ├── No (new code, no existing dependencies) → Skip, proceed to next step
+  └── Yes → Scan impact → Review and renew affected contracts → Confirm
+      │
+      ▼
 [Step 3] preplan skill
   Is this a complex task?
   ├── Simple task → Start implementation immediately
@@ -80,6 +87,21 @@ Follows the `clarify` skill's decision criteria. **Only applies to tasks classif
 Exceptions where clarify can be skipped:
 - The request is already sufficiently specific (purpose, I/O, and scope are clear)
 - AI can start work immediately without making assumptions
+
+### Step 2.5: impact-check skill
+
+Follows the `impact-check` skill's decision criteria. **Only runs when the task is a change to existing code or requirements.**
+
+Conditions for running impact-check:
+- Modifying existing logic, interfaces, or data models
+- Extending or overriding prior requirements agreed upon in clarify
+- Changes where downstream or upstream dependencies exist
+
+Conditions for skipping:
+- Entirely new code with no connections to existing modules
+- Cosmetic changes only (rename with no behavioral effect, formatting)
+
+When impact-check runs, it must complete contract renewal and receive user confirmation before proceeding to preplan.
 
 ### Step 3: preplan skill
 
@@ -120,6 +142,10 @@ Collaborative design determined
 clarify: Ask about unclear requirements → Confirm summary
       │
       ▼
+impact-check (if changing existing code):
+  Scan dependencies → Surface old/new contracts → Confirm renewal
+      │
+      ▼
 preplan: Assess complexity → Recommend plan mode if needed
       │
       ▼
@@ -134,4 +160,5 @@ Design agreement complete → Start implementation
 - **No clarify for vibe-coding**: Presenting a questionnaire during rapid experimentation breaks the flow.
 - **Clarify is mandatory for collaborative design**: Don't set direction based on guesses.
 - **Plan before complex tasks**: Agree on what and how to change before writing code.
+- **Renew contracts before changing existing code**: Any change to existing code implicitly changes the contracts around it. Make that explicit before building.
 - **Never skip steps**: Aligning direction before starting is ultimately faster than starting quickly.

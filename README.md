@@ -24,7 +24,7 @@ Even if token usage or work time increases somewhat, the priority is learning th
 
 ## How It Works
 
-This plugin operates through **3 agents** coordinating **8 skills**. Each agent handles a specific role and can be activated automatically or invoked manually depending on the situation.
+This plugin operates through **3 agents** coordinating **9 skills**. Each agent handles a specific role and can be activated automatically or invoked manually depending on the situation.
 
 ```
 Coding task request
@@ -38,6 +38,7 @@ Coding task request
 [design-agent] Task Design
   |-- scope: Vibe coding vs collaborative design decision
   |-- clarify: Requirement clarification (collaborative design)
+  |-- impact-check: Impact analysis and contract renewal (changes to existing code)
   +-- preplan: Suggest plan mode for complex tasks
       |
       v
@@ -69,10 +70,10 @@ Sets the right direction before starting coding work. Prevents the impulse to "j
 
 | Item              | Description                                                                 |
 | ----------------- | --------------------------------------------------------------------------- |
-| Role              | Vibe coding assessment, requirement clarification, plan mode recommendation |
-| Auto-activation   | On all coding task requests                                                 |
-| Manual invocation | `/design`                                                                   |
-| Managed skills    | `scope`, `clarify`, `preplan`                                               |
+| Role              | Vibe coding assessment, requirement clarification, impact analysis, plan mode recommendation |
+| Auto-activation   | On all coding task requests                                                                  |
+| Manual invocation | `/design`                                                                                    |
+| Managed skills    | `scope`, `clarify`, `impact-check`, `preplan`                                                |
 
 ### Session Agent — Session Management Agent
 
@@ -117,6 +118,16 @@ When a task request is ambiguous, instead of jumping into code immediately, clar
 Before presenting any questionnaire, runs **Reference Exploration** first. AI identifies the request domain and presents well-known services, games, or tools as candidate references. Once a reference is selected, a single delta question — "Is there anything you'd like to handle differently from this?" — establishes a shared implicit contract. Only remaining unclear points are covered by follow-up questions.
 
 **Reference-based alignment**: Instead of abstract descriptions, aligning on a shared reference lets both parties share the same behavioral assumptions without needing to enumerate them explicitly.
+
+### `impact-check` — Change Impact Analysis and Contract Renewal
+
+Before modifying existing code or requirements, identifies what is affected and explicitly renews the implicit contracts around those changes. Rather than warning about risks after the fact, surfaces the before/after contract for each impacted area and gets agreement before proceeding.
+
+- **Auto-activation**: When changes to existing code or requirements are requested (interface, behavior, data model, or logic changes)
+- **Manual invocation**: `/impact-check`
+- **Clarify integration**: If `/clarify` was run previously, uses its Requirements Summary as the contract baseline
+
+**Contract renewal over warning**: For each impacted area, the old assumption and new assumption are presented side by side. The user explicitly confirms the new contract before any code is written. When a conflict is detected, the user decides whether to expand scope, narrow the change, or proceed with acknowledged risk.
 
 ### `preplan` — Pre-work Preparation
 
@@ -170,6 +181,7 @@ claude-beginner-harness-plugin/
 |   |-- init/SKILL.md        # CLAUDE.md initialization
 |   |-- scope/SKILL.md       # Vibe coding scope assessment
 |   |-- clarify/SKILL.md     # Requirement clarification
+|   |-- impact-check/SKILL.md # Change impact analysis and contract renewal
 |   |-- preplan/SKILL.md     # Pre-work preparation
 |   |-- input/SKILL.md       # Read INPUT.md
 |   |-- capture/SKILL.md     # Save conversation content
