@@ -24,7 +24,7 @@ Even if token usage or work time increases somewhat, the priority is learning th
 
 ## How It Works
 
-This plugin operates through **3 agents** coordinating **9 skills**. Each agent handles a specific role and can be activated automatically or invoked manually depending on the situation.
+This plugin operates through **3 agents** coordinating **11 skills**. Each agent handles a specific role and can be activated automatically or invoked manually depending on the situation.
 
 ```
 Coding task request
@@ -32,7 +32,8 @@ Coding task request
       v
 [setup-agent] Environment Preparation
   |-- init: Check and create CLAUDE.md
-  +-- worktree: Assess need for isolated dev environment
+  |-- worktree: Assess need for isolated dev environment
+  +-- compile-setup: Detect build command and register compile hook
       |
       v
 [design-agent] Task Design
@@ -49,6 +50,11 @@ Implementation
   |-- handoff: Write context handoff document
   |-- capture: Save conversation content
   +-- input: Read and process INPUT.md
+
+Error occurs at any point
+      |
+      v
+debug: Root cause analysis → fix agreement → save to debug log
 ```
 
 ## Agents
@@ -57,12 +63,12 @@ Implementation
 
 Checks that the project environment is properly set up before starting work.
 
-| Item              | Description                                                       |
-| ----------------- | ----------------------------------------------------------------- |
-| Role              | Check CLAUDE.md existence and assess git worktree isolation needs |
-| Auto-activation   | When CLAUDE.md is missing or large-scale changes are expected     |
-| Manual invocation | `/setup`                                                          |
-| Managed skills    | `init`, `worktree`                                                |
+| Item              | Description                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| Role              | Check CLAUDE.md existence, assess git worktree isolation needs, set up compile hook      |
+| Auto-activation   | When CLAUDE.md is missing or large-scale changes are expected                            |
+| Manual invocation | `/setup`                                                                                 |
+| Managed skills    | `init`, `worktree`, `compile-setup`                                                      |
 
 ### Design Agent — Task Design Agent
 
@@ -87,6 +93,38 @@ Manages context and workflow continuity throughout the conversation. Prevents th
 | Managed skills    | `handoff`, `capture`, `input`                             |
 
 ## Skills
+
+### `debug` — Error Analysis and Learning
+
+When an error occurs, instead of immediately patching it, analyzes the root cause systematically and builds the habit of understanding why the error happened to prevent recurrence.
+
+- **Auto-activation**: When the user shares an error message or stack trace, when an error occurs during code execution, or when the user expresses unexpected behavior ("why isn't this working", "it breaks when I...")
+- **Manual invocation**: `/debug`
+
+**6-step process**: Error classification → reproduction conditions → root cause analysis (symptom vs. actual cause) → fix direction agreement → fix and verify → recurrence prevention summary
+
+After fixing, saves the case to `.claude/debug-log/` for future reference:
+
+```
+.claude/debug-log/
+  team/       ← committed to git (project-wide patterns)
+    INDEX.md
+    compile/ / runtime/ / test-failure/ / logic/
+  personal/   ← excluded from git (individual learning patterns)
+    INDEX.md
+    compile/ / runtime/ / test-failure/ / logic/
+```
+
+Claude auto-judges whether the error is a **team** pattern (project-specific module/API/business logic) or a **personal** pattern (language basics, tooling, general habits), presents the recommendation, and asks the user to confirm before saving. Filenames use `YYYY-MM-DD_HH-MM-SS_[error-keyword].md` to avoid duplicates. `INDEX.md` in each scope provides a one-line summary per case for quick browsing without opening individual files.
+
+### `compile-setup` — Automatic Compile Verification Setup
+
+Detects the project's build command and registers it as a `PostToolUse` hook in `.claude/settings.json`, so compilation is automatically verified after every file edit.
+
+- **Auto-activation**: Runs as part of `setup-agent` during project initialization
+- **Manual invocation**: `/compile-setup`
+
+Supports Node.js/TS, Go, Rust, Java (Maven/Gradle), C#/.NET, Python, C/C++, and more. Confirms the detected command with the user before registering. If a fast type-check alternative exists (e.g., `tsc --noEmit` instead of full build), recommends it for faster feedback. Merges into existing hook configuration without overwriting.
 
 ### `init` — CLAUDE.md Initialization
 
@@ -178,6 +216,8 @@ claude-beginner-harness-plugin/
 |   |-- design/AGENT.md      # Task design agent
 |   +-- session/AGENT.md     # Session management agent
 |-- skills/
+|   |-- debug/SKILL.md       # Error analysis and learning
+|   |-- compile-setup/SKILL.md # Automatic compile verification setup
 |   |-- init/SKILL.md        # CLAUDE.md initialization
 |   |-- scope/SKILL.md       # Vibe coding scope assessment
 |   |-- clarify/SKILL.md     # Requirement clarification

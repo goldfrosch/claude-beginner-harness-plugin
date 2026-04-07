@@ -1,10 +1,11 @@
 ---
 name: setup-agent
-description: Verifies the project workspace is properly set up. Checks for CLAUDE.md existence (init) and determines whether git worktree isolation is needed (worktree), in order.
-version: 1.0.0
+description: Verifies the project workspace is properly set up. Checks for CLAUDE.md existence (init), determines whether git worktree isolation is needed (worktree), and registers a compile verification hook (compile-setup), in order.
+version: 1.1.0
 skills:
   - init
   - worktree
+  - compile-setup
 ---
 
 # Setup Agent — Environment Setup Agent
@@ -48,6 +49,12 @@ Coding task request
   └── No → Work on current branch
       │
       ▼
+[Step 3] compile-setup skill
+  Is a compile hook already configured?
+  ├── Yes → Skip
+  └── No → Detect project type → Confirm build command → Register PostToolUse hook
+      │
+      ▼
 Environment ready → Start design-agent or work directly
 ```
 
@@ -71,11 +78,31 @@ Conditions where worktree is needed:
 - Core shared modules or base classes are being modified
 - Starting a completely new feature unrelated to current work
 
+### Step 3: compile-setup skill
+
+Follows the `compile-setup` skill's decision criteria.
+
+- Skip if a PostToolUse compile hook already exists in `.claude/settings.json`
+- Skip if the project has no meaningful build step (plain HTML/CSS, shell scripts only)
+- If the project type cannot be auto-detected, ask the user for the build command
+
 ---
 
 ## User Guidance Message Format
 
-### When Both Steps Need Processing
+### When All Steps Need Processing
+
+```
+Checking the environment before starting work.
+
+1. CLAUDE.md is missing → I'll create CLAUDE.md first.
+2. This task is recommended for an isolated environment due to [reason].
+3. No compile hook is configured → I'll detect the build command and set it up.
+
+Shall I proceed with worktree creation and compile hook setup after writing CLAUDE.md?
+```
+
+### When Only Steps 1 and 2 Need Processing
 
 ```
 Checking the environment before starting work.
