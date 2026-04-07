@@ -9,7 +9,10 @@
   "plugins": [
     {
       "name": "claude-beginner-harness-plugin",
-      "source": "https://github.com/GoldFrosch/claude-beginner-harness-plugin.git",
+      "source": {
+        "source": "url",
+        "repo": "https://github.com/GoldFrosch/claude-beginner-harness-plugin.git"
+      },
       "description": "Helps beginners build good habits with Claude Code",
       "version": "1.1.0",
       "author": {
